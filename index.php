@@ -9,10 +9,10 @@
  
  if (count($_POST)>0) {
      //connection request
-     $server = $_POST["txtServer"];
-     $database = $_POST["txtDatabase"];
-     $username = $_POST["txtUsername"];
-     $password = $_POST["txtPassword"];
+     $server = $_POST["Server"];
+     $database = $_POST["Database"];
+     $username = $_POST["Username"];
+     $password = $_POST["Password"];
      //$dbh = new PDO("mysql:host=" . $server . ";dbname=test", $user, $pass);
      try {
      $dbh = new PDO("mysql:host=" . $server . ";dbname=" . $database, $username, $password);
@@ -25,25 +25,29 @@
     }
      
      //$sql = $_POST["txtSQL"]; //TODO HANDLE THIS
-     if (isset($_POST["txtSQL"])) {
+     if (isset($_POST["SQL"])) {
          //Handle sql
-    }
-     else {
-         //output all tables and columns
-         $r = array();
-         $sql = "select table_schema, table_name, column_name, data_type,column_type from information_schema.columns where table_schema not in ('information_schema', 'mysql')";
+         $sql = $_POST["SQL"];
          $sth = $dbh->prepare($sql);
          $sth->execute();
          $data = $sth->fetchAll();
-         foreach($data as $item) {
-             array_push($r, array(
-             "table_schema"=>$item["table_schema"],
-             "table_name"=>$item["table_name"],
-             "column_name"=>$item["column_name"],
-             "data_type"=>$item["data_type"],
-             ));
-            
-         }
+        exit(json_encode($data));
+    }
+    else {
+        //output all tables and columns
+        $r = array();
+        $sql = "select table_schema, table_name, column_name, data_type,column_type from information_schema.columns where table_schema not in ('information_schema', 'mysql')";
+        $sth = $dbh->prepare($sql);
+        $sth->execute();
+        $data = $sth->fetchAll();
+        foreach($data as $item) {
+            array_push($r, array(
+            "table_schema"=>$item["table_schema"],
+            "table_name"=>$item["table_name"],
+            "column_name"=>$item["column_name"],
+            "data_type"=>$item["data_type"],
+            ));
+        }
         exit(json_encode($r));
     }
 }
@@ -61,6 +65,7 @@
     <script src="js/jquery.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
     <script src="js/highcharts.js"></script>
+    <script src="js/utils.js"></script>
     <script src="js/app.js"></script>
     <link rel="stylesheet" href="css/bootstrap.min.css">
 </head>
@@ -119,8 +124,8 @@
             <div class="panel panel-warning">
               <div class="panel-heading">
                 <h3 class="panel-title">
-                    <button data-toggle="modal" data-target="#connectDialog" class="btn btn-sm btn-warning" title="Settings"><span class="glyphicon glyphicon-cog"></span></button> K2M Data Visualization
-                    <button class="pull-right btn btn-sm btn-warning" title="Refresh"><span class="glyphicon glyphicon-refresh"></span></button>
+                    <button data-toggle="modal" data-target="#connectDialog" class="btn btn-sm btn-warning" title="Settings"><span class="glyphicon glyphicon-cog"></span></button> K2M Data Visualizer
+                    <button class="pull-right btn btn-sm btn-warning" title="Help"><span class="glyphicon glyphicon-question-sign"></span></button>
                 </h3>
               </div>
               <div class="panel-body">
