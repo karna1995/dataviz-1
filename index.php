@@ -70,12 +70,44 @@
     <link rel="stylesheet" href="css/bootstrap.min.css">
 </head>
 <body>
+<style>
+.glyphicon-refresh.spinning {
+    animation: spin 1s infinite linear;
+    -webkit-animation: spin2 1s infinite linear;
+}
+
+@keyframes spin {
+    from { transform: scale(1) rotate(0deg); }
+    to { transform: scale(1) rotate(360deg); }
+}
+
+@-webkit-keyframes spin2 {
+    from { -webkit-transform: rotate(0deg); }
+    to { -webkit-transform: rotate(360deg); }
+} 
+    
+#panelTables .panel-body {
+    max-height: 200px;
+    overflow-y: scroll;
+}
+    
+button.btn,button.btn.btn-default,
+button.btn.btn-success,
+button.btn.btn-primary,
+button.btn.btn-info,
+button.btn.btn-warning,
+button.btn.btn-danger {
+    /*white-space: normal;*/
+    max-width: 250px;
+}
+</style>
 <div class="container">
     <br>
     <div class="row">
-        <div class="col-md-2">
+        <div class="col-md-4">
             <div id="panelTables" class="panel panel-default">
               <div class="panel-heading">
+                <span class="pull-right glyphicon glyphicon-refresh"></span>
                 <h3 class="panel-title">Tables</h3>
               </div>
               <div class="panel-body">
@@ -87,6 +119,7 @@
             </div>            
             <div id="panelDimensions" class="panel panel-default">
               <div class="panel-heading">
+                <span class="pull-right glyphicon glyphicon-refresh"></span>
                 <h3 class="panel-title">Dimensions</h3>
               </div>
               <div class="panel-body">
@@ -99,6 +132,7 @@
             </div>
             <div id="panelMeasures" class="panel panel-default">
               <div class="panel-heading">
+              <span class="pull-right glyphicon glyphicon-refresh"></span>
                 <h3 class="panel-title">Measures</h3>
               </div>
               <div class="panel-body">
@@ -120,7 +154,7 @@
               </div>
             </div>
         </div>
-        <div class="col-md-10">
+        <div class="col-md-8">
             <div class="panel panel-warning">
               <div class="panel-heading">
                 <h3 class="panel-title">
@@ -153,8 +187,9 @@
         </p>
       </div>
       <div class="modal-footer">
+          
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary" onclick="javascript:doconnect();">Connect</button>
+        <button type="button" class="btn btn-primary" onclick="javascript:doconnect();"><span class="glyphicon glyphicon-refresh"></span> Connect</button>
       </div>
     </div><!-- /.modal-content -->
   </div><!-- /.modal-dialog -->
