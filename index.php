@@ -13,15 +13,17 @@
      $database = $_POST["Database"];
      $username = $_POST["Username"];
      $password = $_POST["Password"];
+     $port = $_POST["Port"];
      //$dbh = new PDO("mysql:host=" . $server . ";dbname=test", $user, $pass);
      try {
-     $dbh = new PDO("mysql:host=" . $server . ";dbname=" . $database, $username, $password);
+     $dbh = new PDO("mysql:host=" . $server . ";port=" . $port .  ";dbname=" . $database, $username, $password);
+     //$dbh = new PDO("mysql:host=" . $server . ";dbname=" . $database, $username, $password);
     }
     catch(PDOException $e) {
-        die("Error occurred");
+        die("Error occurred: " . $e->getMessage());
     }
     catch(Exception $e) {
-        die("Error occurred");
+        die("Error occurred: " . $e->getMessage());
     }
      
      //$sql = $_POST["txtSQL"]; //TODO HANDLE THIS
@@ -108,7 +110,7 @@ button.btn.btn-danger {
             <div id="panelTables" class="panel panel-default">
               <div class="panel-heading">
                 <span class="pull-right glyphicon glyphicon-refresh"></span>
-                <h3 class="panel-title">Tables</h3>
+                <h3 class="panel-title">Data Sources</h3>
               </div>
               <div class="panel-body">
                 <div>
@@ -143,7 +145,7 @@ button.btn.btn-danger {
                 </div>
               </div>
             </div>
-            <div id="panelFilters" class="panel panel-default">
+            <div id="panelFilters" class="panel panel-default hidden">
               <div class="panel-heading">
                 <h3 class="panel-title">Filters</h3>
               </div>
@@ -159,7 +161,7 @@ button.btn.btn-danger {
               <div class="panel-heading">
                 <h3 class="panel-title">
                     <button data-toggle="modal" data-target="#connectDialog" class="btn btn-sm btn-warning" title="Settings"><span class="glyphicon glyphicon-cog"></span></button> K2M Data Visualizer
-                    <button class="pull-right btn btn-sm btn-warning" title="Help"><span class="glyphicon glyphicon-question-sign"></span></button>
+                    <button class="hidden pull-right btn btn-sm btn-warning" title="Help"><span class="glyphicon glyphicon-question-sign"></span></button>
                 </h3>
               </div>
               <div class="panel-body">
@@ -181,18 +183,38 @@ button.btn.btn-danger {
       <div class="modal-body">
         <p>
             <label>mysql server: </label><input name="txtServer" id="txtServer" class="form-control">
+            <label>port: </label><input name="txtPort" id="txtPort" class="form-control" value="3306">
             <label>database: </label><input name="txtDatabase" id="txtDatabase" class="form-control">
             <label>username: </label><input name="txtUsername" id="txtUsername" class="form-control">
-            <label>password: </label><input name="txtPassword" id="txtPassword" class="form-control">
+            <label>password: </label><input type="password" name="txtPassword" id="txtPassword" class="form-control">
         </p>
       </div>
       <div class="modal-footer">
-          
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
         <button type="button" class="btn btn-primary" onclick="javascript:doconnect();"><span class="glyphicon glyphicon-refresh"></span> Connect</button>
       </div>
     </div><!-- /.modal-content -->
   </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
+
+<div class="modal fade" id="selectTableDialog" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+        <h4 class="modal-title">Select Table</h4>
+      </div>
+      <div class="modal-body" style="max-height:300px; overflow-y:scroll;">
+          
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" onclick="javascript:doSelectTable();"><span class="glyphicon glyphicon-refresh"></span> Connect</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+
 </body>
  </html>
