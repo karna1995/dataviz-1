@@ -58,7 +58,7 @@ function selectTheTables(data) {
         var row = data[i];
         var tname = row["table_schema"] + "."  + row["table_name"];
         if (divBody.indexOf(tname) ==-1 ) {
-            divBody += "<label class='label label-default'>" + tname +  "<input name='grpSelectTable' type='radio' value='" + tname + "' id='"  + tname +  "' " + ((i==0) ? "checked" : "") + "></label><br>";
+            divBody += "<label class='btn btn-xs btn-default'><input name='grpSelectTable' type='radio' value='" + tname + "' id='"  + tname +  "' " + ((i==0) ? "checked" : "") + ">" + tname + "</label><br>";
         }
     }
     divBody += "</div>"; //class='input-group'>
@@ -135,7 +135,7 @@ function buildTheTables(data) {
             var divmeasures = "<div>";
             for(var i=0;i<tables[tname].measures.length;i++) {
                 console.log("measure:",tables[tname].measures[i]);
-                divmeasures += '<label class="label label-default measure"><input type="checkbox" id="' + tables[tname].measures[i] +  '">' + tables[tname].measures[i] + '</label><br>';
+                divmeasures += '<label class="btn btn-xs btn-default measure"><input type="checkbox" id="' + tables[tname].measures[i] +  '">' + tables[tname].measures[i] + '</label><br>';
             }
             if (tables[tname].dimensions.length >0) {
                 currentDimension = tables[tname].dimensions[0];

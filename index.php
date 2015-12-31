@@ -93,7 +93,8 @@
     overflow-y: scroll;
 }
     
-button.btn,button.btn.btn-default,
+button.btn,
+button.btn.btn-default,
 button.btn.btn-success,
 button.btn.btn-primary,
 button.btn.btn-info,
@@ -101,6 +102,7 @@ button.btn.btn-warning,
 button.btn.btn-danger {
     /*white-space: normal;*/
     max-width: 250px;
+    overflow-x: hidden;
 }
 </style>
 <div class="container">
@@ -114,8 +116,8 @@ button.btn.btn-danger {
               </div>
               <div class="panel-body">
                 <div>
-                    <label class="label label-info">Sales</label><br>
-                    <label class="label label-info">Orders</label><br>
+                    <label class="btn btn-xs btn-default">Sales</label><br>
+                    <label class="btn btn-xs btn-default">Orders</label><br>
                 </div>
               </div>
             </div>            
@@ -126,9 +128,9 @@ button.btn.btn-danger {
               </div>
               <div class="panel-body">
                 <div>
-                    <span class="badge glyphicon glyphicon-circle-arrow-up"> </span><label class="label label-primary">Country</label><br>
-                    <span class="badge glyphicon glyphicon-circle-arrow-up"> </span><label class="label label-primary">Age</label><br>
-                    <span class="badge glyphicon glyphicon-circle-arrow-up"> </span><label class="label label-primary">Date</label><br>
+                    <button class="btn btn-xs btn-default">Country</button><br>
+                    <button class="btn btn-xs btn-default">Age</button><br>
+                    <button class="btn btn-xs btn-default">Date</button><br>
                 </div>
               </div>
             </div>
@@ -139,9 +141,9 @@ button.btn.btn-danger {
               </div>
               <div class="panel-body">
                 <div>
-                    <span class="badge glyphicon glyphicon-circle-arrow-up"> </span><label class="label label-success">id</label><br>
-                    <span class="badge glyphicon glyphicon-circle-arrow-up"> </span><label class="label label-success">price</label><br>
-                    <span class="badge glyphicon glyphicon-circle-arrow-up"> </span><label class="label label-success">sales</label><br>
+                    <label class="btn btn-xs btn-default">id</label><br>
+                    <label class="btn btn-xs btn-default">price</label><br>
+                    <label class="btn btn-xs btn-default">sales</label><br>
                 </div>
               </div>
             </div>
@@ -157,10 +159,10 @@ button.btn.btn-danger {
             </div>
         </div>
         <div class="col-md-8">
-            <div class="panel panel-warning">
+            <div class="panel panel-default">
               <div class="panel-heading">
                 <h3 class="panel-title">
-                    <button data-toggle="modal" data-target="#connectDialog" class="btn btn-sm btn-warning" title="Settings"><span class="glyphicon glyphicon-cog"></span></button> K2M Data Visualizer
+                    <button data-toggle="modal" data-target="#connectDialog" class="btn btn-sm btn-default" title="Settings"><span class="glyphicon glyphicon-cog"></span></button> K2M Data Visualizer
                     <button class="hidden pull-right btn btn-sm btn-warning" title="Help"><span class="glyphicon glyphicon-question-sign"></span></button>
                 </h3>
               </div>
@@ -191,7 +193,7 @@ button.btn.btn-danger {
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary" onclick="javascript:doconnect();"><span class="glyphicon glyphicon-refresh"></span> Connect</button>
+        <button type="button" class="btn btn-default" onclick="javascript:doconnect();"><span class="glyphicon glyphicon-refresh"></span> Connect</button>
       </div>
     </div><!-- /.modal-content -->
   </div><!-- /.modal-dialog -->
@@ -209,7 +211,7 @@ button.btn.btn-danger {
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary" onclick="javascript:doSelectTable();"><span class="glyphicon glyphicon-refresh"></span> Connect</button>
+        <button type="button" class="btn btn-default" onclick="javascript:doSelectTable();"><span class="glyphicon glyphicon-refresh"></span> Connect</button>
       </div>
     </div><!-- /.modal-content -->
   </div><!-- /.modal-dialog -->
