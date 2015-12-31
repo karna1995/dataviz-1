@@ -89,7 +89,7 @@ function selectTheTables(data) {
         var row = data[i];
         var tname = row["table_schema"] + "."  + row["table_name"];
         if (divBody.indexOf(tname) ==-1 ) {
-            divBody += "<label class='btn btn-xs btn-default'><input name='grpSelectTable' type='radio' value='" + tname + "' id='"  + tname +  "' " + ((i==0) ? "checked" : "") + ">" + tname + "</label><br>";
+            divBody += "<label class='btn btn-xs btn-default'><input name='grpSelectTable' type='radio' value='" + tname + "' id='"  + tname +  "' " + ((i==0) ? "checked" : "") + ">&nbsp;" + tname + "</label><br>";
         }
     }
     divBody += "</div>"; //class='input-group'>
