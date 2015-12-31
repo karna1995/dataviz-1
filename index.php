@@ -73,6 +73,11 @@
 </head>
 <body>
 <style>
+#panelMeasures .panel-body,
+#panelMeasuresActive .panel-body {
+    min-height: 80px;
+}
+
 .glyphicon-refresh.spinning {
     animation: spin 1s infinite linear;
     -webkit-animation: spin2 1s infinite linear;
@@ -117,7 +122,6 @@ button.btn.btn-danger {
               <div class="panel-body">
                 <div>
                     <label class="btn btn-xs btn-default">Sales</label><br>
-                    <label class="btn btn-xs btn-default">Orders</label><br>
                 </div>
               </div>
             </div>            
@@ -134,19 +138,35 @@ button.btn.btn-danger {
                 </div>
               </div>
             </div>
-            <div id="panelMeasures" class="panel panel-default">
-              <div class="panel-heading">
-              <span class="pull-right glyphicon glyphicon-refresh"></span>
-                <h3 class="panel-title">Measures</h3>
-              </div>
-              <div class="panel-body">
-                <div>
-                    <label class="btn btn-xs btn-default">id</label><br>
-                    <label class="btn btn-xs btn-default">price</label><br>
-                    <label class="btn btn-xs btn-default">sales</label><br>
+            <div class="col-md-6" ondragover="allowDrop(event)">
+                <div id="panelMeasures" class="panel panel-default"   ondragover="allowDrop(event)" >
+                  <div class="panel-heading">
+                    <h3 class="panel-title">Measures</h3>
+                  </div>
+                  <div class="panel-body" ondragover="allowDrop(event)"  ondrop="drop(event)" >
+                    <div>
+<!--
+                        <label class="btn btn-xs btn-default" id="foofoo" ondragstart="drag(event)"  draggable="true">foo</label>
+                        <label class="btn btn-xs btn-default" id="foobar" ondragstart="drag(event)"  draggable="true">bar</label>
+                        <label class="btn btn-xs btn-default" id="foobaz" ondragstart="drag(event)"  draggable="true">baz</label>
+-->
+                    </div>
+                  </div>
                 </div>
-              </div>
             </div>
+            <div class="col-md-6" ondragover="allowDrop(event)">
+                <div id="panelMeasuresActive"  class="panel panel-default">
+                  <div class="panel-heading"  ondragover="allowDrop(event)" >
+                    <h3 class="panel-title">Drag Here</h3>
+                  </div>
+                  <div class="panel-body" ondragover="allowDrop(event)" ondrop="drop(event)" >
+                    <div>
+                    </div>
+                  </div>
+                </div>
+            </div>
+            
+            
             <div id="panelFilters" class="panel panel-default hidden">
               <div class="panel-heading">
                 <h3 class="panel-title">Filters</h3>

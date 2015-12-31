@@ -5,6 +5,37 @@ var currentTable = "";
 var currentDimension = "";
 var currentMeasures = [];
 
+function drag(ev) {
+    console.log(".drag()",ev.target.id);
+    ev.dataTransfer.setData("text", ev.target.id);
+} 
+
+function drop(ev) {
+    ev.preventDefault();
+    var data = ev.dataTransfer.getData("text");
+    console.log(".drop()", data);
+    var control = $("#" + data);
+    
+    if (control.hasClass("measure")) {
+        console.log(".drop()",ev.target.id);
+        ev.target.appendChild(document.getElementById(data));
+        currentMeasures = [];
+        //loop thru all labels inside #panelMeasuresActive
+        $("#panelMeasuresActive .measure").each(function(){
+            var theText = $(this).text();
+            currentMeasures.push(theText);
+        });
+        //add each to currentMeasures
+        drawTheChart();
+    }
+    else {
+        console.log("Unhandled");
+    }
+}
+
+function allowDrop(ev) {
+    ev.preventDefault();
+}
 
 $(document).ready(function() 
 {
@@ -135,7 +166,7 @@ function buildTheTables(data) {
             var divmeasures = "<div>";
             for(var i=0;i<tables[tname].measures.length;i++) {
                 console.log("measure:",tables[tname].measures[i]);
-                divmeasures += '<label class="btn btn-xs btn-default measure"><input type="checkbox" id="' + tables[tname].measures[i] +  '">' + tables[tname].measures[i] + '</label><br>';
+                divmeasures += '<label id="' + tables[tname].measures[i] +  '" draggable="true" ondragstart="drag(event)"  class="btn btn-xs btn-default measure"><input class="hidden" type="checkbox">' + tables[tname].measures[i] + '</label>';
             }
             if (tables[tname].dimensions.length >0) {
                 currentDimension = tables[tname].dimensions[0];
@@ -148,6 +179,7 @@ function buildTheTables(data) {
             divmeasures += "</div>";
             $("#panelDimensions .panel-body").html(divdimensions)
             $("#panelMeasures .panel-body").html(divmeasures)
+            $("#panelMeasuresActive .panel-body").html("<div></div>");
             
             $("button.dimension").on('click', function(){
                 currentDimension = $(this).text();
