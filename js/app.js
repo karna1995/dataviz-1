@@ -5,22 +5,52 @@ var currentTable = "";
 var currentDimension = "";
 var currentMeasures = [];
 
+function getHTMLTeaser() {
+    return '<h4 id="teaser"><small id="teaserSmall">Drop here</small></h4>';
+}
+
 function drag(ev) {
     console.log(".drag()",ev.target.id);
     ev.dataTransfer.setData("text", ev.target.id);
-} 
+}
 
 function drop(ev) {
     ev.preventDefault();
     var data = ev.dataTransfer.getData("text");
     console.log(".drop()", data);
     var control = $("#" + data);
-    
+
     if (control.hasClass("measure")) {
-        console.log(".drop()",ev.target.id);
-        ev.target.appendChild(document.getElementById(data));
+        var theParent;
+        var theText = $(document.getElementById(data)).text();
+        if (ev.target.id == "teaser" || ev.target.id=="teaserSmall") {
+            theParent = $("#panelMeasuresActive .panel-body")[0];
+        } else {
+            theParent = ev.target;
+        }
+        
+        //add/remove the fancy row/column buttons
+        if (ev.target.id=="panelBodyMeasures") {
+            $('#panelMeasuresActive .panel-title.columns .' + theText).remove();
+        }
+        else {
+            $('#panelMeasuresActive .panel-title.columns').append(
+                "<label class='btn btn-xs btn-primary " + theText + "'>" + 
+                theText +
+                 "</label>");
+        }
+        
+        console.log(".drop(). The target is: ", theParent.id);
+        theParent.appendChild(document.getElementById(data));
+        if ($("#panelMeasuresActive .measure").length>0) {
+            console.log("avail measures length", $("#panelMeasuresActive .measure").length);
+            if ($("#panelMeasuresActive #teaser").length>0) $("#panelMeasuresActive #teaser").remove();
+        } else {
+            console.log("avail measures length", $("#panelMeasuresActive .measure").length);
+            $("#panelMeasuresActive .panel-body").html(getHTMLTeaser());
+        }
         currentMeasures = [];
-        //loop thru all labels inside #panelMeasuresActive
+         //loop thru all labels inside #panelMeasuresActive
         $("#panelMeasuresActive .measure").each(function(){
             var theText = $(this).text();
             currentMeasures.push(theText);
@@ -115,8 +145,8 @@ function doSelectTable() {
 
 function buildTheTables(data) {
     var divtables = "<div>";
-    var divdimensions = "<div>";
-    var divmeasures = "<div>";
+    //var divdimensions = "";
+    //var divmeasures = "";
     tables = {};
     
     //data = JSON.parse(data);
@@ -145,11 +175,11 @@ function buildTheTables(data) {
     }
     
     divtables += "</div>";
-    divdimensions += "</div>";
-    divmeasures += "</div>";
+    //divdimensions += "";
+    //divmeasures += "";
     $("#panelTables .panel-body").html(divtables)
-    $("#panelDimensions .panel-body").html(divdimensions)
-    $("#panelMeasures .panel-body").html(divmeasures)
+    //$("#panelDimensions .panel-body").html(divdimensions)
+    //$("#panelMeasures .panel-body").html(divmeasures)
     
     window.tables = tables;
     
@@ -162,8 +192,8 @@ function buildTheTables(data) {
             currentMeasures = [];
             console.log(".click ", event.data.id, tables[tname].measures);
             //generate html for dimensions and measures
-            var divdimensions = "<div>";
-            var divmeasures = "<div>";
+            var divdimensions = "";
+            var divmeasures = "";
             for(var i=0;i<tables[tname].measures.length;i++) {
                 console.log("measure:",tables[tname].measures[i]);
                 divmeasures += '<label id="' + tables[tname].measures[i] +  '" draggable="true" ondragstart="drag(event)"  class="btn btn-xs btn-default measure"><input class="hidden" type="checkbox">' + tables[tname].measures[i] + '</label>';
@@ -175,11 +205,11 @@ function buildTheTables(data) {
                 console.log("dimensions:",tables[tname].dimensions[i]);
                 divdimensions += '<button class="btn btn-xs btn-default dimension">' + tables[tname].dimensions[i] + '</button><br>';
             }
-            divdimensions += "</div>";
-            divmeasures += "</div>";
+            divdimensions += "";
+            divmeasures += "";
             $("#panelDimensions .panel-body").html(divdimensions)
             $("#panelMeasures .panel-body").html(divmeasures)
-            $("#panelMeasuresActive .panel-body").html("<div></div>");
+            $("#panelMeasuresActive .panel-body").html(getHTMLTeaser());
             
             $("button.dimension").on('click', function(){
                 currentDimension = $(this).text();
@@ -266,12 +296,12 @@ function drawChart(categories, series) {
                 text: 'Unit of Measurement'
             }};
     options.series = series; //JSON.parse(series); //[{name: series[0].name, data: series[0]['data']}];
-    $('#thechart').highcharts(options);
+    $('#theChart').highcharts(options);
 };
 
 function clearChart() {
     console.log('clearChart()');
-    $('#thechart').highcharts({
+    $('#theChart').highcharts({
     chart: {
         type: 'line',//'bar'
     },

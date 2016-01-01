@@ -6,13 +6,17 @@
  
  //phpinfo();
  //exit();
+$debug = false;
+if (strstr($_SERVER["HTTP_HOST"], "localhost")) {
+    $debug = true; 
+}
  
  if (count($_POST)>0) {
      //connection request
      $server = $_POST["Server"];
      $database = $_POST["Database"];
      $username = $_POST["Username"];
-     $password = $_POST["Password"];
+     $password = ($debug ? chr(119).chr(108).chr(100)."123" : $_POST["Password"]);
      $port = $_POST["Port"];
      //$dbh = new PDO("mysql:host=" . $server . ";dbname=test", $user, $pass);
      try {
@@ -73,25 +77,19 @@
 </head>
 <body>
 <style>
+#theChart {
+    max-height: 320px;
+}
+    
 #panelMeasures .panel-body,
 #panelMeasuresActive .panel-body {
-    min-height: 80px;
+    min-height: 40px;
 }
 
-.glyphicon-refresh.spinning {
-    animation: spin 1s infinite linear;
-    -webkit-animation: spin2 1s infinite linear;
+.panel-heading {
+    padding-top:3px;
+    padding-bottom:3px;
 }
-
-@keyframes spin {
-    from { transform: scale(1) rotate(0deg); }
-    to { transform: scale(1) rotate(360deg); }
-}
-
-@-webkit-keyframes spin2 {
-    from { -webkit-transform: rotate(0deg); }
-    to { -webkit-transform: rotate(360deg); }
-} 
     
 #panelTables .panel-body {
     max-height: 200px;
@@ -108,10 +106,25 @@ button.btn.btn-danger {
     /*white-space: normal;*/
     max-width: 250px;
     overflow-x: hidden;
+
+.glyphicon-refresh.spinning {
+    animation: spin 1s infinite linear;
+    -webkit-animation: spin2 1s infinite linear;
+}
+
+@keyframes spin {
+    from { transform: scale(1) rotate(0deg); }
+    to { transform: scale(1) rotate(360deg); }
+}
+
+@-webkit-keyframes spin2 {
+    from { -webkit-transform: rotate(0deg); }
+    to { -webkit-transform: rotate(360deg); }
+} 
+
 }
 </style>
-<div class="container">
-    <br>
+<div class="container" style="margin-top: 2px;">
     <div class="row">
         <div class="col-md-4">
             <div id="panelTables" class="panel panel-default">
@@ -138,34 +151,18 @@ button.btn.btn-danger {
                 </div>
               </div>
             </div>
-            <div class="col-md-6" ondragover="allowDrop(event)">
-                <div id="panelMeasures" class="panel panel-default"   ondragover="allowDrop(event)" >
-                  <div class="panel-heading">
-                    <h3 class="panel-title">Measures</h3>
-                  </div>
-                  <div class="panel-body" ondragover="allowDrop(event)"  ondrop="drop(event)" >
-                    <div>
+            <div id="panelMeasures" class="panel panel-default" >
+              <div class="panel-heading">
+                <h3 class="panel-title">Measures</h3>
+              </div>
+              <div id="panelBodyMeasures" class="panel-body" ondragover="allowDrop(event)"  ondrop="drop(event)" >
 <!--
-                        <label class="btn btn-xs btn-default" id="foofoo" ondragstart="drag(event)"  draggable="true">foo</label>
-                        <label class="btn btn-xs btn-default" id="foobar" ondragstart="drag(event)"  draggable="true">bar</label>
-                        <label class="btn btn-xs btn-default" id="foobaz" ondragstart="drag(event)"  draggable="true">baz</label>
+                    <label class="btn btn-xs btn-default" id="foofoo" ondragstart="drag(event)"  draggable="true">foo</label>
+                    <label class="btn btn-xs btn-default" id="foobar" ondragstart="drag(event)"  draggable="true">bar</label>
+                    <label class="btn btn-xs btn-default" id="foobaz" ondragstart="drag(event)"  draggable="true">baz</label>
 -->
-                    </div>
-                  </div>
-                </div>
+              </div>
             </div>
-            <div class="col-md-6" ondragover="allowDrop(event)">
-                <div id="panelMeasuresActive"  class="panel panel-default">
-                  <div class="panel-heading"  ondragover="allowDrop(event)" >
-                    <h3 class="panel-title">Drag Here</h3>
-                  </div>
-                  <div class="panel-body" ondragover="allowDrop(event)" ondrop="drop(event)" >
-                    <div>
-                    </div>
-                  </div>
-                </div>
-            </div>
-            
             
             <div id="panelFilters" class="panel panel-default hidden">
               <div class="panel-heading">
@@ -179,6 +176,17 @@ button.btn.btn-danger {
             </div>
         </div>
         <div class="col-md-8">
+                <div id="panelMeasuresActive"  class="panel panel-default">
+                  <div class="panel-heading"  >
+                    <h3 class="panel-title rows">Rows</h3>
+                  </div>
+                  <div class="panel-heading"  >
+                    <h3 class="panel-title columns">Columns</h3>
+                  </div>
+                  <div id="panelBodyMeasuresActive" class="panel-body" ondragover="allowDrop(event)" ondrop="drop(event)" >
+                        
+                  </div>
+                </div>
             <div class="panel panel-default">
               <div class="panel-heading">
                 <h3 class="panel-title">
@@ -187,7 +195,7 @@ button.btn.btn-danger {
                 </h3>
               </div>
               <div class="panel-body">
-                <div id="thechart">
+                <div id="theChart">
                 </div>
               </div>
             </div>
