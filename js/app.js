@@ -6,8 +6,31 @@ var tables = {}; //currently selected data sources
 var currentTable = ""; //currently selected table for SQL "from" clause
 var currentDimensions = []; //OBSOLETE: currently selected columns for SQL "group by" clause
 var currentMeasures = []; //OBSOLETE: currently selected columns for SQL "select" clause (sum/avg/etc.)
+var currentChartType = 'line';
 var columns = [];
 var rows = [];
+
+function exportToCSV() {
+   $.ajax({
+        url: "",
+        type: "POST",
+        data: {
+            Server:conn.Server,
+            Port:conn.Port,
+            Database:conn.Database,
+            Username:conn.Username,
+            Password:conn.Password,
+            SQL:sql,
+            CSV:"true"
+            },
+        success: function(data) {
+            //nothing to do
+        },
+        error: function(response) {
+            //handle error
+        }
+        });    
+}
 
 function getHTMLTeaser() {
     return '<SMALL id="teaser">DROP HERE</SMALL>';
@@ -26,9 +49,12 @@ function drop(ev) {
     if (ev.target.id == "teaser" || ev.target.id=="teaserSmall") {
         console.log("if teaser", ev.target.parentElement, ev.target.parentElement.id);
         theParent = ev.target.parentElement;
-    } else {
-        console.log("if !teaser");
+    } else if (ev.target.id=="panelBodyRows" || ev.target.id=="panelBodyColumns") {
+        console.log("if !teaser", ev.target.id);
         theParent = ev.target;
+    }
+    else {
+        return;
     }
     console.log(".drop(). The target is: ", theParent.id);
     if (theParent.id=='panelBodyRows') {
@@ -78,7 +104,7 @@ function drop(ev) {
             if (thePanelBody.find(".dropdown").length==0) {
                 thePanelBody.append(getHTMLTeaser());
             }
-        } else {
+        } else { //summary
             var theSummary = text;
             if (theSummary == 'average') theSummary='avg';
             theParent.text(theSummary + "(" + theParent.parent().attr("field") + ")");
@@ -424,7 +450,7 @@ function drawTheChart() {
  * */
 function drawChart(categories, series) {
     var options = {};
-    options.chart = {type: 'line'}; //'bar'
+    options.chart = {type: currentChartType}; //'bar'
     options.title = {text: currentDimensions[0] + " wise chart"};
     options.xAxis = {categories: categories};
     options.yAxis = {title: {

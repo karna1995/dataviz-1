@@ -31,7 +31,12 @@ if (count($_POST)>0) {
     }
      
      //$sql = $_POST["txtSQL"]; //TODO HANDLE THIS
-     if (isset($_POST["SQL"])) {
+     if (isset($_POST["CSV"])) {
+        //prepare the csv
+        //dump csv to user
+        exit(); //
+    }
+     else if (isset($_POST["SQL"])) {
          //Handle sql
          $sql = $_POST["SQL"];
          $sth = $dbh->prepare($sql);
@@ -77,7 +82,50 @@ if (count($_POST)>0) {
 </head>
 <body>
 <style>
-
+    
+/*Bootstrap submenu override starts*/
+    .dropdown-submenu {
+        position:relative;
+    }
+    .dropdown-submenu>.dropdown-menu {
+        top:0;
+        left:100%;
+        margin-top:-6px;
+        margin-left:-1px;
+        -webkit-border-radius:0 6px 6px 6px;
+        -moz-border-radius:0 6px 6px 6px;
+        border-radius:0 6px 6px 6px;
+    }
+    .dropdown-submenu:hover>.dropdown-menu {
+        display:block;
+    }
+    .dropdown-submenu>a:after {
+        display:block;
+        content:" ";
+        float:right;
+        width:0;
+        height:0;
+        border-color:transparent;
+        border-style:solid;
+        border-width:5px 0 5px 5px;
+        border-left-color:#cccccc;
+        margin-top:5px;
+        margin-right:-10px;
+    }
+    .dropdown-submenu:hover>a:after {
+        border-left-color:#ffffff;
+    }
+    .dropdown-submenu.pull-left {
+        float:none;
+    }
+    .dropdown-submenu.pull-left>.dropdown-menu {
+        left:-100%;
+        margin-left:10px;
+        -webkit-border-radius:6px 0 6px 6px;
+        -moz-border-radius:6px 0 6px 6px;
+        border-radius:6px 0 6px 6px;
+    }
+/*Bootstrap submenu override ends*/
 body {
     padding-top: 20px;
 }    
@@ -206,20 +254,19 @@ button.btn.btn-danger {
               <div class="panel-heading">
                 <h3 class="panel-title">
                     <button data-toggle="modal" onclick="showConnectDialog();" class="btn btn-xs btn-default" title="Settings"><span class="glyphicon glyphicon-cog"></span></button>
-                    
                     <span id="mnuChartType" role="presentation" class="dropdown">
                         <a class="btn btn-xs btn-default dropdown-toggle" data-target="" data-toggle="dropdown" href="#" title="Chart Type">
                           <span class="glyphicon glyphicon-stats"></span> <span class="caret"></span>
                         </a>
                         <ul class="dropdown-menu" role="menu">
-                                <li><a href="#">Line</a></li>
-                                <li><a href="#">Bar</a></li>
-                                <li><a href="#">Pie</a></li>
-                                <li><a href="#">Area</a></li>
-                                <li><a href="#">Data</a></li>
+                                <li><a onclick="currentChartType='line';drawTheChart();" href="#">Line</a></li>
+                                <li><a onclick="currentChartType='bar';drawTheChart();" href="#">Bar</a></li>
+                                <li><a onclick="currentChartType='pie';drawTheChart();" href="#">Pie</a></li>
+                                <li><a onclick="currentChartType='area';drawTheChart();" href="#">Area</a></li>
+                                <li class='hidden'><a onclick="currentChartType='data';drawTheChart();" href="#">Data</a></li>
                         </ul>
                   </span>
-                    
+                  <button onclick="exportToCSV();" class="btn btn-xs btn-default">CSV</button>
                     &nbsp;K2M Data Visualizer
                     <button class="hidden pull-right btn btn-sm btn-warning" title="Help"><span class="glyphicon glyphicon-question-sign"></span></button>
                 </h3>
@@ -275,20 +322,24 @@ button.btn.btn-danger {
   </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
 
-  <span id="genericMenu" role="presentation" class="hidden dropdown">
+  <span id="genericMenu" role="presentation" class="hidden dropdown" >
     <a id="label" class="btn btn-xs btn-info dropdown-toggle" data-toggle="dropdown" href="#">
       Dropdown <span class="caret"></span>
     </a>
     <ul class="dropdown-menu" role="menu">
-            <li><a href="#">Dimension</a></li>
-            <li class="divider"></li>
-            <li><a href="#">Count</a></li>
-            <li><a href="#">Sum</a></li>
-            <li><a href="#">Min</a></li>
-            <li><a href="#">Max</a></li>
-            <li><a href="#">Average</a></li>
-            <li class="divider"></li>
-            <li><a href="#">Remove</a></li>
+        <li><a href="#">Dimension</a></li>
+        <li class="menu-item dropdown dropdown-submenu">
+             <a href="#" class="dropdown-toggle" data-toggle="dropdown">Measures </a>
+              <ul class="dropdown-menu">
+                    <li class="menu-item"><a href="#">Sum</a></li>
+                    <li class="menu-item"><a href="#">Count</a></li>
+                    <li class="menu-item"><a href="#">Sum</a></li>
+                    <li class="menu-item"><a href="#">Min</a></li>
+                    <li class="menu-item"><a href="#">Max</a></li>
+                    <li class="menu-item"><a href="#">Average</a></li>
+              </ul>
+        </li>
+        <li><a href="#">Remove</a></li>
     </ul>
   </span>
 </body>
