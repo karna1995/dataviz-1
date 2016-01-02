@@ -215,6 +215,8 @@ button.btn.btn-danger {
                                 <li><a href="#">Line</a></li>
                                 <li><a href="#">Bar</a></li>
                                 <li><a href="#">Pie</a></li>
+                                <li><a href="#">Area</a></li>
+                                <li><a href="#">Data</a></li>
                         </ul>
                   </span>
                     
