@@ -10,13 +10,13 @@ $debug = false;
 if (strstr($_SERVER["HTTP_HOST"], "localhost")) {
     $debug = true; 
 }
- 
- if (count($_POST)>0) {
+
+if (count($_POST)>0) {
      //connection request
      $server = $_POST["Server"];
      $database = $_POST["Database"];
      $username = $_POST["Username"];
-     $password = ($debug ? chr(119).chr(108).chr(100)."123" : $_POST["Password"]);
+     $password = $_POST["Password"];
      $port = $_POST["Port"];
      //$dbh = new PDO("mysql:host=" . $server . ";dbname=test", $user, $pass);
      try {
@@ -77,18 +77,32 @@ if (strstr($_SERVER["HTTP_HOST"], "localhost")) {
 </head>
 <body>
 <style>
+
+body {
+    padding-top: 20px;
+}    
+
 #theChart {
-    max-height: 320px;
+    /*max-height: 300px;*/
+    min-height: 250px;
+}
+
+.panel {
+    margin-bottom: 10px;
+}
+
+.panel-body {
+    padding: 3px;
 }
     
 #panelMeasures .panel-body,
-#panelMeasuresActive .panel-body {
-    min-height: 40px;
+#panelColumns .panel-body {
+    /*min-height: 40px;*/
 }
 
 .panel-heading {
-    padding-top:3px;
-    padding-bottom:3px;
+    padding-top:1px;
+    padding-bottom:1px;
 }
     
 #panelTables .panel-body {
@@ -143,12 +157,10 @@ button.btn.btn-danger {
                 <span class="pull-right glyphicon glyphicon-refresh"></span>
                 <h3 class="panel-title">Dimensions</h3>
               </div>
-              <div class="panel-body">
-                <div>
+              <div id="panelBodyDimensions" class="panel-body"  ondragover="allowDrop(event)"  ondrop="drop(event)" >
                     <button class="btn btn-xs btn-default">Country</button><br>
                     <button class="btn btn-xs btn-default">Age</button><br>
                     <button class="btn btn-xs btn-default">Date</button><br>
-                </div>
               </div>
             </div>
             <div id="panelMeasures" class="panel panel-default" >
@@ -176,21 +188,37 @@ button.btn.btn-danger {
             </div>
         </div>
         <div class="col-md-8">
-                <div id="panelMeasuresActive"  class="panel panel-default">
-                  <div class="panel-heading"  >
-                    <h3 class="panel-title rows">Rows</h3>
-                  </div>
-                  <div class="panel-heading"  >
-                    <h3 class="panel-title columns">Columns</h3>
-                  </div>
-                  <div id="panelBodyMeasuresActive" class="panel-body" ondragover="allowDrop(event)" ondrop="drop(event)" >
-                        
-                  </div>
-                </div>
+                    <div id="panelColumns"  class="panel panel-default">
+                      <div class="panel-heading"  >
+                        <h3 class="panel-title columns"><span class="glyphicon glyphicon-th">&nbsp;</span>Columns</h3>
+                      </div>
+                      <div id="panelBodyColumns" class="panel-body" ondragover="allowDrop(event)" ondrop="drop(event)" >
+                      </div>
+                    </div>
+                    <div id="panelRows"  class=" panel panel-default">
+                      <div class="panel-heading"  >
+                        <h3 class="panel-title rows"><span class="glyphicon glyphicon-th-list">&nbsp;</span>Rows</h3>
+                      </div>
+                      <div id="panelBodyRows" class="panel-body" ondragover="allowDrop(event)" ondrop="drop(event)" >
+                      </div>
+                    </div>
             <div class="panel panel-default">
               <div class="panel-heading">
                 <h3 class="panel-title">
-                    <button data-toggle="modal" data-target="#connectDialog" class="btn btn-sm btn-default" title="Settings"><span class="glyphicon glyphicon-cog"></span></button> K2M Data Visualizer
+                    <button data-toggle="modal" onclick="showConnectDialog();" class="btn btn-xs btn-default" title="Settings"><span class="glyphicon glyphicon-cog"></span></button>
+                    
+                    <span id="mnuChartType" role="presentation" class="dropdown">
+                        <a class="btn btn-xs btn-default dropdown-toggle" data-target="" data-toggle="dropdown" href="#" title="Chart Type">
+                          <span class="glyphicon glyphicon-stats"></span> <span class="caret"></span>
+                        </a>
+                        <ul class="dropdown-menu" role="menu">
+                                <li><a href="#">Line</a></li>
+                                <li><a href="#">Bar</a></li>
+                                <li><a href="#">Pie</a></li>
+                        </ul>
+                  </span>
+                    
+                    &nbsp;K2M Data Visualizer
                     <button class="hidden pull-right btn btn-sm btn-warning" title="Help"><span class="glyphicon glyphicon-question-sign"></span></button>
                 </h3>
               </div>
@@ -221,7 +249,7 @@ button.btn.btn-danger {
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-default" onclick="javascript:doconnect();"><span class="glyphicon glyphicon-refresh"></span> Connect</button>
+        <button type="button" class="btn btn-default" onclick="javascript:doConnect();"><span class="glyphicon glyphicon-refresh"></span> Connect</button>
       </div>
     </div><!-- /.modal-content -->
   </div><!-- /.modal-dialog -->
@@ -245,6 +273,21 @@ button.btn.btn-danger {
   </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
 
-
+  <span id="genericMenu" role="presentation" class="hidden dropdown">
+    <a id="label" class="btn btn-xs btn-info dropdown-toggle" data-toggle="dropdown" href="#">
+      Dropdown <span class="caret"></span>
+    </a>
+    <ul class="dropdown-menu" role="menu">
+            <li><a href="#">Dimension</a></li>
+            <li class="divider"></li>
+            <li><a href="#">Count</a></li>
+            <li><a href="#">Sum</a></li>
+            <li><a href="#">Min</a></li>
+            <li><a href="#">Max</a></li>
+            <li><a href="#">Average</a></li>
+            <li class="divider"></li>
+            <li><a href="#">Remove</a></li>
+    </ul>
+  </span>
 </body>
  </html>
