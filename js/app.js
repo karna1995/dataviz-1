@@ -63,12 +63,14 @@ function drop(ev) {
         theField.addClass("dimension");
         theField.find("#label").text(control.text());
     }
+    theField.find("#label").append('<span class="caret"></span>');
     //$(theParent).append($(theLabel));
     theField.find("li a").click(function(){
         var text = $(this).text().toLowerCase();
         var theParent  = $(this).parents("span.dropdown").find("#label");
         if (text == "dimension") {
             theParent.text(theParent.parent().attr("field"));
+            theParent.append('<span class="caret"></span>');
             theParent.removeClass('btn-success').addClass('btn-info');
         } else if (text == 'remove') {
             var thePanelBody = theParent.parent().parent();
@@ -80,6 +82,7 @@ function drop(ev) {
             var theSummary = text;
             if (theSummary == 'average') theSummary='avg';
             theParent.text(theSummary + "(" + theParent.parent().attr("field") + ")");
+            theParent.append('<span class="caret"></span>');
             theParent.removeClass('btn-info').addClass('btn-success');
         }
         drawTheChart();
