@@ -33,8 +33,30 @@ if (count($_POST)>0) {
      //$sql = $_POST["txtSQL"]; //TODO HANDLE THIS
      if (isset($_POST["CSV"])) {
         //prepare the csv
+        $fp = fopen("output.csv","w");
+        $r = array();
+        $sql = $_POST["SQL"];
+        $sth = $dbh->prepare($sql);
+        $sth->execute();
+        $data = $sth->fetchAll();
+        //remove number indices
+        $ndata = [];
+        foreach ($data as $item) {
+            $tarr = array();
+            foreach ($item as $key => $value) {
+                if (!is_int($key)) {
+                    //unset($item[$key]);
+                    array_push($tarr, $value);
+                    //var_dump($value);
+                }
+            }
+            fputcsv($fp, $tarr);
+        }
+        //now build the csv
+        fclose($fp);
+        //exit(json_encode($r));
         //dump csv to user
-        exit(); //
+        exit("success"); //
     }
      else if (isset($_POST["SQL"])) {
          //Handle sql

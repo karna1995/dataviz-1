@@ -9,8 +9,10 @@ var currentMeasures = []; //OBSOLETE: currently selected columns for SQL "select
 var currentChartType = 'line';
 var columns = [];
 var rows = [];
+var lastSQL = ""; //last successfully executed sql statement
 
 function exportToCSV() {
+    console.log("exportToCSV()");
    $.ajax({
         url: "",
         type: "POST",
@@ -20,16 +22,19 @@ function exportToCSV() {
             Database:conn.Database,
             Username:conn.Username,
             Password:conn.Password,
-            SQL:sql,
+            SQL:lastSQL,
             CSV:"true"
             },
         success: function(data) {
             //nothing to do
+            console.log(data);
+            if (data=="success") window.location = "output.csv"
         },
         error: function(response) {
             //handle error
+            console.log(response);
         }
-        });    
+        });
 }
 
 function getHTMLTeaser() {
@@ -409,6 +414,7 @@ function drawTheChart() {
                 SQL:sql
                 },
             success: function(data) {
+                lastSQL = sql;
                 $("#panelDimensions .glyphicon-refresh").removeClass("spinning");
                 $("#panelMeasures .glyphicon-refresh").removeClass("spinning");
                 var categories = []; //data regarding the current dimension
