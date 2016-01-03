@@ -261,6 +261,7 @@ button.btn.btn-danger {
                         <ul class="dropdown-menu" role="menu">
                                 <li><a onclick="currentChartType='line';drawTheChart();" href="#">Line</a></li>
                                 <li><a onclick="currentChartType='bar';drawTheChart();" href="#">Bar</a></li>
+                                <li><a onclick="currentChartType='column';drawTheChart();" href="#">Column</a></li>
                                 <li><a onclick="currentChartType='pie';drawTheChart();" href="#">Pie</a></li>
                                 <li><a onclick="currentChartType='area';drawTheChart();" href="#">Area</a></li>
                                 <li class='hidden'><a onclick="currentChartType='data';drawTheChart();" href="#">Data</a></li>
