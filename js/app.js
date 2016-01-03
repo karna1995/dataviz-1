@@ -13,6 +13,10 @@ var lastSQL = ""; //last successfully executed sql statement
 
 function exportToCSV() {
     console.log("exportToCSV()");
+    if (lastSQL=="") {
+        alert("No executed SQL statement found.");
+        return;
+    }
    $.ajax({
         url: "",
         type: "POST",
@@ -370,6 +374,7 @@ function buildTheTables(data) {
  * */
 function drawTheChart() {
     //if (currentMeasures.length==0) return;
+    lastSQL = "";
     currentDimensions=[];
     currentMeasures=[];
     $("#panelBodyColumns #label, #panelBodyRows #label").each(function() {
