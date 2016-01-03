@@ -1,12 +1,10 @@
 # K2M Source Repository
 
-![K2M in action](img/K2M.png)
-
 ## Feature Roadmap
 
 -JDBC/ODBC connection to MySQL and Postgres
 -- connect to one table OR
--- Allow user to type a custom SQL. Before closing the widnow validate that SQL is correct. If correct, close the Custom SQL window and take user to charting section.
+-- Allow user to type a custom SQL. Before closing the window validate that SQL is correct. If correct, close the Custom SQL window and take user to charting section.
 
 -- Recognise data type for each column either for the table or custom SQL by sampling first 10 rows:
 Text values

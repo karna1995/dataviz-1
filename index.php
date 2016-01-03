@@ -30,7 +30,6 @@ if (count($_POST)>0) {
         die("Error occurred: " . $e->getMessage());
     }
      
-     //$sql = $_POST["txtSQL"]; //TODO HANDLE THIS
      if (isset($_POST["CSV"])) {
         //prepare the csv
         $fp = fopen("output.csv","w");
@@ -290,6 +289,7 @@ button.btn.btn-danger {
                         </ul>
                   </span>
                   <button onclick="exportToCSV();" class="btn btn-xs btn-default">CSV</button>
+                  <button onclick="showSQLDialog();" class="btn btn-xs btn-default">SQL</button>
                     &nbsp;K2M Data Visualizer
                     <button class="hidden pull-right btn btn-sm btn-warning" title="Help"><span class="glyphicon glyphicon-question-sign"></span></button>
                 </h3>
@@ -345,6 +345,23 @@ button.btn.btn-danger {
   </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
 
+<div class="modal fade" id="sqlDialog" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+        <h4 class="modal-title">SQL</h4>
+      </div>
+      <div class="modal-body" style="">
+          <textarea id="txtSQL" rows="10" cols="70" readonly="readonly"></textarea>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div><!-- /.modal-content -->
+  </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
   <span id="genericMenu" role="presentation" class="hidden dropdown" >
     <a id="label" class="btn btn-xs btn-info dropdown-toggle" data-toggle="dropdown" href="#">
       Dropdown <span class="caret"></span>
@@ -356,6 +373,7 @@ button.btn.btn-danger {
               <ul class="dropdown-menu">
                     <li class="menu-item"><a href="#">Sum</a></li>
                     <li class="menu-item"><a href="#">Count</a></li>
+                    <li class="menu-item"><a href="#">Distinct Count</a></li>
                     <li class="menu-item"><a href="#">Sum</a></li>
                     <li class="menu-item"><a href="#">Min</a></li>
                     <li class="menu-item"><a href="#">Max</a></li>

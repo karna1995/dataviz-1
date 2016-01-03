@@ -228,6 +228,11 @@ function showConnectDialog() {
     $("#connectDialog").modal('show');
 }
 
+function showSQLDialog() {
+    $("#txtSQL").val(lastSQL);
+    $("#sqlDialog").modal('show');
+}
+
 function showTablesDialog(data) {
     //console.log(data);
     data = JSON.parse(data);
