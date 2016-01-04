@@ -163,6 +163,7 @@ body {
 .panel-body {
     padding: 3px;
 }
+
     
 #panelMeasures .panel-body,
 #panelColumns .panel-body {
@@ -173,6 +174,12 @@ body {
     padding-top:1px;
     padding-bottom:1px;
 }
+
+#panelChart .panel-heading {
+    padding-top: 5px;
+    padding-bottom: 7px;
+}
+
     
 #panelTables .panel-body {
     max-height: 200px;
@@ -271,11 +278,12 @@ button.btn.btn-danger {
                       <div id="panelBodyRows" class="panel-body" ondragover="allowDrop(event)" ondrop="drop(event)" >
                       </div>
                     </div>
-            <div class="panel panel-default">
+            <div id="panelChart" class="panel panel-default">
               <div class="panel-heading">
                 <h3 class="panel-title">
-                    <button data-toggle="modal" onclick="showConnectDialog();" class="btn btn-xs btn-default" title="Settings"><span class="glyphicon glyphicon-cog"></span></button>
-                    <span id="mnuChartType" role="presentation" class="dropdown">
+                    <span>K2M Data Visualizer</span>
+                    <button data-toggle="modal" onclick="showConnectDialog();" class="pull-right btn btn-xs btn-default" title="Settings"><span class="glyphicon glyphicon-cog"></span></button>
+                    <span id="mnuChartType" role="presentation" class="dropdown pull-right">
                         <a class="btn btn-xs btn-default dropdown-toggle" data-target="" data-toggle="dropdown" href="#" title="Chart Type">
                           <span class="glyphicon glyphicon-stats"></span> <span class="caret"></span>
                         </a>
@@ -288,10 +296,8 @@ button.btn.btn-danger {
                                 <li class='hidden'><a onclick="currentChartType='data';drawTheChart();" href="#">Data</a></li>
                         </ul>
                   </span>
-                  <button onclick="exportToCSV();" class="btn btn-xs btn-default">CSV</button>
-                  <button onclick="showSQLDialog();" class="btn btn-xs btn-default">SQL</button>
-                    &nbsp;K2M Data Visualizer
-                    <button class="hidden pull-right btn btn-sm btn-warning" title="Help"><span class="glyphicon glyphicon-question-sign"></span></button>
+                  <button onclick="exportToCSV();" class="btn btn-xs btn-default pull-right">CSV</button>
+                  <button onclick="showSQLDialog();" class="btn btn-xs btn-default pull-right">SQL</button>
                 </h3>
               </div>
               <div class="panel-body">
