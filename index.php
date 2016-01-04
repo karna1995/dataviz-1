@@ -3,33 +3,26 @@
  * The primary view for K2M Data Visualization
  * 
  */
- 
- //phpinfo();
- //exit();
 $debug = false;
 if (strstr($_SERVER["HTTP_HOST"], "localhost")) {
     $debug = true; 
 }
 
 if (count($_POST)>0) {
-     //connection request
-     $server = $_POST["Server"];
-     $database = $_POST["Database"];
-     $username = $_POST["Username"];
-     $password = $_POST["Password"];
-     $port = $_POST["Port"];
-     //$dbh = new PDO("mysql:host=" . $server . ";dbname=test", $user, $pass);
-     try {
-     $dbh = new PDO("mysql:host=" . $server . ";port=" . $port .  ";dbname=" . $database, $username, $password);
-     //$dbh = new PDO("mysql:host=" . $server . ";dbname=" . $database, $username, $password);
-    }
-    catch(PDOException $e) {
+    //connection request
+    $server = $_POST["Server"];
+    $database = $_POST["Database"];
+    $username = $_POST["Username"];
+    $password = $_POST["Password"];
+    $port = $_POST["Port"];
+    try {
+        $dbh = new PDO("mysql:host=" . $server . ";port=" . $port .  ";dbname=" . $database, $username, $password);
+    } catch(PDOException $e) {
+        die("Error occurred: " . $e->getMessage());
+    } catch(Exception $e) {
         die("Error occurred: " . $e->getMessage());
     }
-    catch(Exception $e) {
-        die("Error occurred: " . $e->getMessage());
-    }
-     
+    
      if (isset($_POST["CSV"])) {
         //prepare the csv
         $fp = fopen("output.csv","w");
@@ -53,19 +46,15 @@ if (count($_POST)>0) {
         }
         //now build the csv
         fclose($fp);
-        //exit(json_encode($r));
-        //dump csv to user
-        exit("success"); //
-    }
-     else if (isset($_POST["SQL"])) {
+        exit("success");
+    } else if (isset($_POST["SQL"])) {
          //Handle sql
          $sql = $_POST["SQL"];
          $sth = $dbh->prepare($sql);
          $sth->execute();
          $data = $sth->fetchAll();
         exit(json_encode($data));
-    }
-    else {
+    } else {
         //output all tables and columns
         $r = array();
         $sql = "select table_schema, table_name, column_name, data_type,column_type from information_schema.columns where table_schema not in ('information_schema', 'mysql')";
@@ -83,11 +72,6 @@ if (count($_POST)>0) {
         exit(json_encode($r));
     }
 }
- //     RETURN A JSON OBJECT WITH TABLES
-//      exit('json');
- // ELSE
- //     CONTINUE AS BELOW
- //ENDIF
  ?>
  <!DOCTYPE html>
 <html lang="en">
@@ -166,8 +150,8 @@ body {
 
     
 #panelMeasures .panel-body,
-#panelColumns .panel-body {
-    /*min-height: 40px;*/
+#panelDimensions .panel-body {
+    min-height: 20px;
 }
 
 #panelMeasures .measure, 

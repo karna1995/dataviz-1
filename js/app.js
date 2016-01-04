@@ -65,6 +65,22 @@ function drop(ev) {
         } else if (ev.target.id=="label") {
             console.log("if label");
             theParent = ev.target.parentElement.parentElement;
+        } else if (($(ev.target).hasClass("measure") ||  $(ev.target).attr("id")=="panelBodyMeasures") 
+            && control.hasClass("dimension")) {
+            //dimension dragged into measure
+            theParent = $("#panelBodyMeasures")[0];
+            control.removeClass("dimension");
+            control.addClass("measure");
+            control.appendTo($(theParent));
+            return;
+        } else if (($(ev.target).hasClass("dimension") || $(ev.target).attr("id")=="panelBodyDimensions" )
+            && control.hasClass("measure")) {
+            //measure dragged into dimension
+            theParent =  $("#panelBodyDimensions")[0];
+            control.removeClass("measure");
+            control.addClass("dimension");
+            control.appendTo($(theParent));
+            return;
         }
         else {
             return;
