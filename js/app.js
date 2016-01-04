@@ -266,24 +266,62 @@ function showTablesDialog(data) {
         }
     }
     divBody += "</div>"; //class='input-group'>
-    $("#selectTableDialog .modal-body").html(divBody);
+    $("#selectTableDialog .modal-body #tabTables").html(divBody);
     $("#selectTableDialog").modal('show');
     window.data = data;
 }
 
-function doSelectTable() {
-    $("#selectTableDialog").modal('hide');
-    var currTable = $("[name='grpSelectTable']:checked").val();
-    var data = window.data;
-    var newdata = [];
-    for (var i=0;i<data.length;i++) {
-        var row = data[i];
-        var tname = row["table_schema"] + "."  + row["table_name"];
-        if (tname == currTable) {
-            newdata.push(row);
+function doTestCustomSQL() {
+    var data = $.extend({}, conn);
+    data.SQL = $("#txtCustomSQL").val();
+    console.log("SQL", data.SQL);
+    $.ajax({
+        url: "",
+        method: "POST",
+        data: data,
+        success: function(data){
+            console.log(data);
+            if (data.indexOf("Error code:") == -1) {
+                result = JSON.parse(data);
+                alert(result.length + " records returned");
+            } else {
+                alert(data);
+            }
         }
+    });
+}
+
+function doSelectTable() {
+    if ($("#tabCustomSQL").hasClass("active")) {
+        var newdata = [];
+        /**
+         * TODO:
+         * 1. Test Custom SQL and make sure it does not return an error. 
+         * 2. Create a list from the resultset of CustomSQL last executed like this:
+         * { table_schema: "performance_schema", table_name: "CustomSQL", column_name: "NAME", data_type: "varchar" }
+         * 
+         * 3. Assign this list to newdata variable.
+         * */
+        $("#selectTableDialog").modal('hide');
+        buildTheTables({
+            data: newdata
+        });
+    } else {
+        $("#selectTableDialog").modal('hide');
+        var currTable = $("[name='grpSelectTable']:checked").val();
+        var data = window.data;
+        var newdata = [];
+        for (var i=0;i<data.length;i++) {
+            var row = data[i];
+            var tname = row["table_schema"] + "."  + row["table_name"];
+            if (tname == currTable) {
+                newdata.push(row);
+            }
+        }
+        buildTheTables({
+            data: newdata
+        });
     }
-    buildTheTables(newdata);
 }
 
 /*
@@ -291,7 +329,8 @@ function doSelectTable() {
  * 
  * @param data list of rows containing table-data returned from mysql information_schema
  * */
-function buildTheTables(data) {
+function buildTheTables(options) {
+    var data = options.data;
     var divtables = "<div>";
     //var divdimensions = "";
     //var divmeasures = "";

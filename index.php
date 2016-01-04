@@ -48,12 +48,18 @@ if (count($_POST)>0) {
         fclose($fp);
         exit("success");
     } else if (isset($_POST["SQL"])) {
-         //Handle sql
-         $sql = $_POST["SQL"];
-         $sth = $dbh->prepare($sql);
-         $sth->execute();
-         $data = $sth->fetchAll();
-        exit(json_encode($data));
+        //Handle sql
+        $sql = $_POST["SQL"];
+        $sth = $dbh->prepare($sql);
+        $sth->execute();
+        $code = substr($sth->errorCode(), 0, 2);
+        if ($code=="00" || $code=="01") {
+            $data = $sth->fetchAll();
+            exit(json_encode($data));
+        }
+        else {
+            exit("Error code: " . $sth->errorCode());
+        }
     } else {
         //output all tables and columns
         $r = array();
@@ -158,6 +164,7 @@ body {
 #panelDimensions .dimension 
 {
     display:block;
+    margin: 1px 1px;
 }
 
 
@@ -332,7 +339,19 @@ button.btn.btn-danger {
         <h4 class="modal-title">Select Table</h4>
       </div>
       <div class="modal-body" style="max-height:300px; overflow-y:scroll;">
-          
+            <!-- Nav tabs -->
+            <ul class="nav nav-tabs" role="tablist">
+                <li role="presentation" class="active"><a href="#tabTables" role="tab" data-toggle="tab">Tables</a></li>
+                <li class="hidden" role="presentation"><a href="#tabCustomSQL" role="tab" data-toggle="tab">Custom SQL</a></li>
+            </ul>
+            <!-- Tab panes -->
+            <div class="tab-content">
+                <div role="tabpanel" class="tab-pane active" id="tabTables"></div>
+                <div role="tabpanel" class="tab-pane" id="tabCustomSQL">
+                    <textarea id="txtCustomSQL" rows="9" cols="70">SELECT * FROM;</textarea>
+                    <button onclick="doTestCustomSQL();" class="btn btn-default">Test</button>
+                </div>
+            </div>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
