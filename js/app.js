@@ -55,15 +55,20 @@ function drop(ev) {
     var data = ev.dataTransfer.getData("text");
     console.log(".drop() data, target.id: ", data, ev.target.id);
     var control = $("#" + data);
-    if (ev.target.id == "teaser" || ev.target.id=="teaserSmall") {
-        console.log("if teaser", ev.target.parentElement, ev.target.parentElement.id);
-        theParent = ev.target.parentElement;
-    } else if (ev.target.id=="panelBodyRows" || ev.target.id=="panelBodyColumns") {
-        console.log("if !teaser", ev.target.id);
-        theParent = ev.target;
-    }
-    else {
-        return;
+    if (control.hasClass('measure') || control.hasClass('dimension')) {
+        //One of the measure/dimension buttons on the bottom left
+        if (ev.target.id == "teaser" || ev.target.id=="teaserSmall") {
+            console.log("if teaser", ev.target.parentElement, ev.target.parentElement.id);
+            theParent = ev.target.parentElement;
+        } else if (ev.target.id=="panelBodyRows" || ev.target.id=="panelBodyColumns") {
+            theParent = ev.target;
+        } else if (ev.target.id=="label") {
+            console.log("if label");
+            theParent = ev.target.parentElement.parentElement;
+        }
+        else {
+            return;
+        }
     }
     console.log(".drop(). The target is: ", theParent.id);
     if (theParent.id=='panelBodyRows') {
@@ -302,11 +307,7 @@ function buildTheTables(data) {
     }
     
     divtables += "</div>";
-    //divdimensions += "";
-    //divmeasures += "";
     $("#panelTables .panel-body").html(divtables)
-    //$("#panelDimensions .panel-body").html(divdimensions)
-    //$("#panelMeasures .panel-body").html(divmeasures)
     
     window.tables = tables;
     

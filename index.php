@@ -170,6 +170,13 @@ body {
     /*min-height: 40px;*/
 }
 
+#panelMeasures .measure, 
+#panelDimensions .dimension 
+{
+    display:block;
+}
+
+
 .panel-heading {
     padding-top:1px;
     padding-bottom:1px;
@@ -369,7 +376,7 @@ button.btn.btn-danger {
 </div><!-- /.modal -->
 
   <span id="genericMenu" role="presentation" class="hidden dropdown" >
-    <a id="label" class="btn btn-xs btn-info dropdown-toggle" data-toggle="dropdown" href="#">
+    <a id="label" class="btn btn-xs btn-info dropdown-toggle" data-toggle="dropdown" href="#" >
       Dropdown <span class="caret"></span>
     </a>
     <ul class="dropdown-menu" role="menu">
