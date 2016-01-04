@@ -108,7 +108,7 @@ function drop(ev) {
         //$(theLabel).text("count(" + control.text() + ")");
         
         theField.addClass("measure");
-        theField.find("#label").text("count(" + control.text() + ")")
+        theField.find("#label").text("COUNT(" + control.text() + ")")
             .removeClass("btn-info")
             .addClass("btn-success");
     } else if (control.hasClass("dimension")) {
@@ -122,21 +122,23 @@ function drop(ev) {
     theField.find("#label").append('<span class="caret"></span>');
     //$(theParent).append($(theLabel));
     theField.find("li a").click(function(){
-        var text = $(this).text().toLowerCase();
+        var text = $(this).text().toUpperCase();
         var theParent  = $(this).parents("span.dropdown").find("#label");
-        if (text == "dimension") {
+        if (text == "DIMENSION") {
             theParent.text(theParent.parent().attr("field"));
             theParent.append('<span class="caret"></span>');
             theParent.removeClass('btn-success').addClass('btn-info');
-        } else if (text == 'remove') {
+        } else if (text == 'REMOVE') {
             var thePanelBody = theParent.parent().parent();
             theParent.parent().remove();
             if (thePanelBody.find(".dropdown").length==0) {
                 thePanelBody.append(getHTMLTeaser());
             }
+        } else if (text.indexOf('MEASURES')==0) {
+            return; //This is just a placeholder
         } else { //summary
             var theSummary = text;
-            if (theSummary == 'average') theSummary='avg';
+            if (theSummary == 'AVERAGE') theSummary='AVG';
             theParent.text(theSummary + "(" + theParent.parent().attr("field") + ")");
             theParent.append('<span class="caret"></span>');
             theParent.removeClass('btn-info').addClass('btn-success');
