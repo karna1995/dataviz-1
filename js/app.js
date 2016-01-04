@@ -103,19 +103,11 @@ function drop(ev) {
     
     //$(theLabel).addClass('btn btn-xs btn-success');
     if (control.hasClass("measure")) {
-        //$(theLabel).addClass("measure");
-        //TODO: Initialize a measure with count(*)
-        //$(theLabel).text("count(" + control.text() + ")");
-        
         theField.addClass("measure");
         theField.find("#label").text("COUNT(" + control.text() + ")")
             .removeClass("btn-info")
             .addClass("btn-success");
     } else if (control.hasClass("dimension")) {
-        //$(theLabel).addClass("dimension");
-        //TODO: Initialize a dimension
-        //$(theLabel).text(control.text());
-        
         theField.addClass("dimension");
         theField.find("#label").text(control.text());
     }
