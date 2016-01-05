@@ -10,6 +10,8 @@ var currentChartType = 'line';
 var columns = [];
 var rows = [];
 var lastSQL = ""; //last successfully executed sql statement
+var numTypes = ["float", "double", "decimal", "int", "smallint",
+    "tinyint", "mediumint", "bigint"];
 
 function exportToCSV() {
     console.log("exportToCSV()");
@@ -51,6 +53,7 @@ function drag(ev) {
 }
 
 function drop(ev) {
+    console.log("drop()");
     ev.preventDefault();
     var data = ev.dataTransfer.getData("text");
     console.log(".drop() data, target.id: ", data, ev.target.id);
@@ -344,10 +347,8 @@ function buildTheTables(options) {
             tables[row.table_name]['dimensions'] = [];
             tables[row.table_name]['measures'] = [];
         }
-        if (row.data_type=='int' || row.data_type=='float' || row.data_type=='double') {
-            //console.log('number field found ', row.column_name, row.data_type);
+        if (numTypes.indexOf(row.data_type) > -1) {
             tables[row.table_name]['measures'].push(row.column_name);
-            //divmeasures += '<label id=measures' + row.column_name +  ' class="label label-success">' +  row.column_name + '</label><br>';
         }
         else {
             //console.log('non number field found ', row.column_name, row.column_type);
@@ -373,7 +374,7 @@ function buildTheTables(options) {
             var divmeasures = "";
             for(var i=0;i<tables[tname].measures.length;i++) {
                 console.log("measure:",tables[tname].measures[i]);
-                divmeasures += '<label id="' + tables[tname].measures[i] +  '" draggable="true" ondragstart="drag(event)"  class="btn btn-xs btn-default measure"><input class="hidden" type="checkbox">' + tables[tname].measures[i] + '</label>';
+                divmeasures += '<label id="' + tables[tname].measures[i] +  '" draggable="true" ondragstart="drag(event)"  class="btn btn-xs btn-default measure">' + tables[tname].measures[i] + '</label>';
             }
             if (tables[tname].dimensions.length >0) {
                 //currentDimension = tables[tname].dimensions[0];
