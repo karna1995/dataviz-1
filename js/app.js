@@ -527,6 +527,14 @@ function drawChart(categories, series) {
     $('#theChart').highcharts(options);
 };
 
+function clearEnv() {
+    $("#panelBodyColumns").html("");
+    $("#panelBodyColumns").append(getHTMLTeaser());
+    $("#panelBodyRows").html("");
+    $("#panelBodyRows").append(getHTMLTeaser());
+    clearChart();
+}
+
 function clearChart() {
     console.log('clearChart()');
     $('#theChart').highcharts({

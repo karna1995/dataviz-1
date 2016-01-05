@@ -296,6 +296,7 @@ button.btn.btn-danger {
                   </span>
                   <button onclick="exportToCSV();" class="btn btn-xs btn-default pull-right">CSV</button>
                   <button onclick="showSQLDialog();" class="btn btn-xs btn-default pull-right">SQL</button>
+                  <button onclick="clearEnv();" class="btn btn-xs btn-default pull-right">Clear</button>
                 </h3>
               </div>
               <div class="panel-body">
