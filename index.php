@@ -1,6 +1,6 @@
 <?php 
 /**
- * The primary view for K2M Data Visualization
+ * The primary view for K2M Data Visualization.
  * 
  */
 $debug = false;
