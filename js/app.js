@@ -268,8 +268,9 @@ function showTablesDialog(data) {
     window.data = data;
 }
 
-function doTestCustomSQL() {
+function doTestCustomSQL(options) {
     var data = $.extend({}, conn);
+    if (options == undefined) options = {silent: false};
     data.SQL = $("#txtCustomSQL").val();
     console.log("SQL", data.SQL);
     $.ajax({
@@ -279,10 +280,15 @@ function doTestCustomSQL() {
         success: function(data){
             console.log(data);
             if (data.indexOf("Error code:") == -1) {
-                result = JSON.parse(data);
-                alert(result.length + " records returned");
+                if (!options.silent) {
+                    result = JSON.parse(data);
+                    alert(result.length + " records returned");
+                    window.result = result;
+                }
+                if (options.success != undefined) options.success(data);
             } else {
-                alert(data);
+                if (!options.silent) alert(data);
+                if (options.error != undefined) options.error();
             }
         }
     });
@@ -299,9 +305,39 @@ function doSelectTable() {
          * 
          * 3. Assign this list to newdata variable.
          * */
-        $("#selectTableDialog").modal('hide');
-        buildTheTables({
-            data: newdata
+        var data = doTestCustomSQL({
+            silent: true,
+            error: function() {
+                alert("Error occurred. Please check SQL statement.");
+            },
+            success: function(data) {
+                var result = JSON.parse(data);
+                if (result.length==0) {
+                    alert("Zero rows returned.");
+                    return;
+                }
+                for (var key in result[0]) {
+                    console.log("key", key);
+                    if (!$.isNumeric(key)) {
+                        var val = result[0][key];
+                        var theType = "";
+                        console.log("key and val: ", result[0][key], val);
+                        if ($.isNumeric(val)) {
+                            theType = "int";
+                        }
+                        else {
+                            theType = "varchar";
+                        }
+                        var obj = { table_schema: "performance_schema", table_name: "CustomSQL", column_name: key, data_type: theType };
+                        newdata.push(obj);
+                    }
+                }
+                
+                $("#selectTableDialog").modal('hide');
+                buildTheTables({
+                    data: newdata
+                });
+            }
         });
     } else {
         $("#selectTableDialog").modal('hide');
@@ -459,7 +495,13 @@ function drawTheChart() {
             selClause += (selClause.length==0 ? "" : ",")  +  currentDimensions[i] ;
             groupbyClause += (groupbyClause.length==0 ? "" : ",")  +  currentDimensions[i] ;
         }
-        sql = "SELECT " + selClause + " FROM " + currentTable + " GROUP BY " + groupbyClause;
+        console.log("currentTable", currentTable);
+        if (currentTable=="performance_schema.CustomSQL") {
+            sql = "SELECT " + selClause + " FROM (" + $("#txtCustomSQL").val().replace(";","") + ") foo GROUP BY " + groupbyClause;
+        }
+        else {
+            sql = "SELECT " + selClause + " FROM " + currentTable + " GROUP BY " + groupbyClause;
+        }
         console.log(sql);
         $("#panelDimensions .glyphicon-refresh").addClass("spinning");
         $("#panelMeasures .glyphicon-refresh").addClass("spinning");

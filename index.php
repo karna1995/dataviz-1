@@ -343,7 +343,7 @@ button.btn.btn-danger {
             <!-- Nav tabs -->
             <ul class="nav nav-tabs" role="tablist">
                 <li role="presentation" class="active"><a href="#tabTables" role="tab" data-toggle="tab">Tables</a></li>
-                <li class="hidden" role="presentation"><a href="#tabCustomSQL" role="tab" data-toggle="tab">Custom SQL</a></li>
+                <li class="" role="presentation"><a href="#tabCustomSQL" role="tab" data-toggle="tab">Custom SQL</a></li>
             </ul>
             <!-- Tab panes -->
             <div class="tab-content">
