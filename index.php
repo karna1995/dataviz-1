@@ -94,10 +94,16 @@ if (count($_POST)>0) {
 <body>
 <style>
     
+/*Bootstrap overrides*/
+.dropdown-menu > li > a:focus, .dropdown-menu > li > a:hover {
+    background-color: #4078C0;
+}
+    
 /*Bootstrap submenu override starts*/
     .dropdown-submenu {
         position:relative;
     }
+    
     .dropdown-submenu>.dropdown-menu {
         top:0;
         left:100%;
@@ -161,16 +167,15 @@ body {
 }
 
 #panelMeasures .measure, 
-#panelDimensions .dimension 
-{
+#panelDimensions .dimension {
     display:block;
     margin: 1px 1px;
 }
 
 
 .panel-heading {
-    padding-top:1px;
-    padding-bottom:1px;
+    padding-top:5px;
+    padding-bottom:7px;
 }
 
 #panelChart .panel-heading {
@@ -217,8 +222,7 @@ button.btn.btn-danger {
         <div class="col-md-4">
             <div id="panelTables" class="panel panel-default">
               <div class="panel-heading">
-                <span class="pull-right glyphicon glyphicon-refresh"></span>
-                <h3 class="panel-title">Data Sources</h3>
+                <h3 class="panel-title"><button data-toggle="modal" onclick="showConnectDialog();" class="pull-right btn btn-xs btn-default" title="Settings"><span class="glyphicon glyphicon-cog"></span></button> Data Sources</h3>
               </div>
               <div class="panel-body">
                 <div>
@@ -228,7 +232,6 @@ button.btn.btn-danger {
             </div>            
             <div id="panelDimensions" class="panel panel-default">
               <div class="panel-heading">
-                <span class="pull-right glyphicon glyphicon-refresh"></span>
                 <h3 class="panel-title">Dimensions</h3>
               </div>
               <div id="panelBodyDimensions" class="panel-body"  ondragover="allowDrop(event)"  ondrop="drop(event)" >
@@ -279,8 +282,8 @@ button.btn.btn-danger {
             <div id="panelChart" class="panel panel-default">
               <div class="panel-heading">
                 <h3 class="panel-title">
-                    <span>K2M Data Visualizer</span>
-                    <button data-toggle="modal" onclick="showConnectDialog();" class="pull-right btn btn-xs btn-default" title="Settings"><span class="glyphicon glyphicon-cog"></span></button>
+                    <span>Dataviz</span>
+                    <button data-toggle="modal" onclick="showConnectDialog();" class="hidden pull-right btn btn-xs btn-default" title="Settings"><span class="glyphicon glyphicon-cog"></span></button>
                     <span id="mnuChartType" role="presentation" class="dropdown pull-right">
                         <a class="btn btn-xs btn-default dropdown-toggle" data-target="" data-toggle="dropdown" href="#" title="Chart Type">
                           <span class="glyphicon glyphicon-stats"></span> <span class="caret"></span>
@@ -295,7 +298,7 @@ button.btn.btn-danger {
                         </ul>
                   </span>
                   <button onclick="exportToCSV();" class="btn btn-xs btn-default pull-right">CSV</button>
-                  <button onclick="showSQLDialog();" class="btn btn-xs btn-default pull-right">SQL</button>
+                  <button onclick="showSQLDialog();" class="hidden btn btn-xs btn-default pull-right">SQL</button>
                   <button onclick="clearEnv();" class="btn btn-xs btn-default pull-right">Clear</button>
                 </h3>
               </div>
