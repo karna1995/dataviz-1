@@ -10,8 +10,51 @@ var currentChartType = 'line';
 var columns = [];
 var rows = [];
 var lastSQL = ""; //last successfully executed sql statement
+var lastChartData = {}; //last successful data used to draw the chart
 var numTypes = ["float", "double", "decimal", "int", "smallint",
     "tinyint", "mediumint", "bigint"];
+var env = "";
+
+$(document).ready(function() 
+{
+    clearChart();
+    conn = localStorage.getItem("conn");
+    if (conn==null) {
+        conn={};
+        //$("#connectDialog").modal('show');
+        showConnectDialog();
+    } else {
+        conn = JSON.parse(conn);
+        connect();
+    }
+
+    //http://stackoverflow.com/questions/19032597/javascript-event-binding-persistence
+    $("body").on('click', '.dropdown.dimension li a, .dropdown.measure li a', function() {
+        console.log("body.clicked");
+        var text = $(this).text().toUpperCase();
+        var theParent  = $(this).parents("span.dropdown").find("#label");
+        if (text == "DIMENSION") {
+            theParent.text(theParent.parent().attr("field"));
+            theParent.append('<span class="caret"></span>');
+            theParent.removeClass('btn-success').addClass('btn-info');
+        } else if (text == 'REMOVE') {
+            var thePanelBody = theParent.parent().parent();
+            theParent.parent().remove();
+            if (thePanelBody.find(".dropdown").length==0) {
+                thePanelBody.append(getHTMLTeaser());
+            }
+        } else if (text.indexOf('MEASURES')==0) {
+            return; //This is just a placeholder
+        } else { //summary
+            var theSummary = text;
+            if (theSummary == 'AVERAGE') theSummary='AVG';
+            theParent.text(theSummary + "(" + theParent.parent().attr("field") + ")");
+            theParent.append('<span class="caret"></span>');
+            theParent.removeClass('btn-info').addClass('btn-success');
+        }
+        drawTheChart();
+    });
+});
 
 function exportToCSV() {
     console.log("exportToCSV()");
@@ -115,32 +158,30 @@ function drop(ev) {
         theField.find("#label").text(control.text());
     }
     theField.find("#label").append('<span class="caret"></span>');
-    //$(theParent).append($(theLabel));
-    theField.find("li a").click(function(){
-        var text = $(this).text().toUpperCase();
-        var theParent  = $(this).parents("span.dropdown").find("#label");
-        if (text == "DIMENSION") {
-            theParent.text(theParent.parent().attr("field"));
-            theParent.append('<span class="caret"></span>');
-            theParent.removeClass('btn-success').addClass('btn-info');
-        } else if (text == 'REMOVE') {
-            var thePanelBody = theParent.parent().parent();
-            theParent.parent().remove();
-            if (thePanelBody.find(".dropdown").length==0) {
-                thePanelBody.append(getHTMLTeaser());
-            }
-        } else if (text.indexOf('MEASURES')==0) {
-            return; //This is just a placeholder
-        } else { //summary
-            var theSummary = text;
-            if (theSummary == 'AVERAGE') theSummary='AVG';
-            theParent.text(theSummary + "(" + theParent.parent().attr("field") + ")");
-            theParent.append('<span class="caret"></span>');
-            theParent.removeClass('btn-info').addClass('btn-success');
-        }
-        drawTheChart();
-        //console.log();
-    });
+    //~ theField.find("li a").on('click', function(){
+        //~ var text = $(this).text().toUpperCase();
+        //~ var theParent  = $(this).parents("span.dropdown").find("#label");
+        //~ if (text == "DIMENSION") {
+            //~ theParent.text(theParent.parent().attr("field"));
+            //~ theParent.append('<span class="caret"></span>');
+            //~ theParent.removeClass('btn-success').addClass('btn-info');
+        //~ } else if (text == 'REMOVE') {
+            //~ var thePanelBody = theParent.parent().parent();
+            //~ theParent.parent().remove();
+            //~ if (thePanelBody.find(".dropdown").length==0) {
+                //~ thePanelBody.append(getHTMLTeaser());
+            //~ }
+        //~ } else if (text.indexOf('MEASURES')==0) {
+            //~ return; //This is just a placeholder
+        //~ } else { //summary
+            //~ var theSummary = text;
+            //~ if (theSummary == 'AVERAGE') theSummary='AVG';
+            //~ theParent.text(theSummary + "(" + theParent.parent().attr("field") + ")");
+            //~ theParent.append('<span class="caret"></span>');
+            //~ theParent.removeClass('btn-info').addClass('btn-success');
+        //~ }
+        //~ drawTheChart();
+    //~ });
     $(theParent).append(theField);
     $(theParent).find("#teaser").remove();
     
@@ -182,20 +223,6 @@ function drop(ev) {
 function allowDrop(ev) {
     ev.preventDefault();
 }
-
-$(document).ready(function() 
-{
-    clearChart();
-    conn = localStorage.getItem("conn");
-    if (conn==null) {
-        conn={};
-        //$("#connectDialog").modal('show');
-        showConnectDialog();
-    } else {
-        conn = JSON.parse(conn);
-        connect();
-    }
-});
 
 function doConnect() {
     console.log("doConnect()");
@@ -537,9 +564,13 @@ function drawTheChart() {
                         series[j].data.push(val);
                     }
                 }
-                window.data = data;
-                window.series = series;
-                window.categories = categories;
+                lastChartData = {
+                    series: series,
+                    categories: categories
+                };
+                //window.data = data;
+                //window.series = series;
+                //window.categories = categories;
                 drawChart(categories, series);
             },
             error: function(response) {
@@ -575,6 +606,50 @@ function clearEnv() {
     $("#panelBodyRows").html("");
     $("#panelBodyRows").append(getHTMLTeaser());
     clearChart();
+}
+
+function saveEnv() {
+    console.log("saveEnv()");
+    var obj = {};
+    obj.chartData = lastChartData;
+    obj.measures = $("#panelBodyMeasures").html();
+    obj.dimensions = $("#panelBodyDimensions").html();
+    obj.rows = $("#panelBodyRows").html();
+    obj.columns = $("#panelBodyColumns").html();
+    obj.tables = $("#panelTables .panel-body").html();
+    env = JSON.stringify(obj);
+    $.ajax({
+        url: "",
+        method: "POST",
+        data: {SAVE_ENV: env},
+        success: function(data){
+            console.log(data);
+        }
+    });
+}
+
+function restoreEnv() {
+    console.log("restoreEnv()");
+    $.ajax({
+        url: "",
+        method: "POST",
+        data: {GET_ENV: ""},
+        success: function(data) {
+            if (data.indexOf("not found") > -1) {
+                alert(data);
+                return;
+            }
+            env = data;
+            var obj = JSON.parse(env);
+            lastChartData = obj.chartData;
+            $("#panelBodyMeasures").html(obj.measures);
+            $("#panelBodyDimensions").html(obj.dimensions);
+            $("#panelBodyRows").html(obj.rows);
+            $("#panelBodyColumns").html(obj.columns);
+            $("#panelTables .panel-body").html(obj.tables);
+            drawChart(lastChartData.categories, lastChartData.series);
+        }
+    });
 }
 
 function clearChart() {

@@ -1,6 +1,6 @@
 <?php 
 /**
- * The primary view for K2M Data Visualization.
+ * The primary view for Dataviz.
  * 
  */
 $debug = false;
@@ -9,6 +9,25 @@ if (strstr($_SERVER["HTTP_HOST"], "localhost")) {
 }
 
 if (count($_POST)>0) {
+    if (isset($_POST["GET_ENV"])) {
+        $fname = "env.json";
+        if (file_exists($fname)) {
+            $fp = fopen($fname, "r");
+            $json = fread($fp, filesize($fname));
+            fclose($fp);
+            exit($json);
+        } else {
+            exit("File not found");
+        }
+    } else if (isset($_POST["SAVE_ENV"])) {
+        $fname = "env.json";
+        $json = $_POST["SAVE_ENV"];
+        $fp = fopen($fname, "w");
+        fwrite($fp,$json);
+        fclose($fp);
+        exit("success");
+    }
+
     //connection request
     $server = $_POST["Server"];
     $database = $_POST["Database"];
@@ -23,7 +42,7 @@ if (count($_POST)>0) {
         die("Error occurred: " . $e->getMessage());
     }
     
-     if (isset($_POST["CSV"])) {
+    if (isset($_POST["CSV"])) {
         //prepare the csv
         $fp = fopen("output.csv","w");
         $r = array();
@@ -83,7 +102,7 @@ if (count($_POST)>0) {
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>K2M Data Visualization</title>
+    <title>Dataviz</title>
     <script src="js/jquery.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
     <script src="js/highcharts.js"></script>
@@ -297,9 +316,11 @@ button.btn.btn-danger {
                                 <li class='hidden'><a onclick="currentChartType='data';drawTheChart();" href="#">Data</a></li>
                         </ul>
                   </span>
-                  <button onclick="exportToCSV();" class="btn btn-xs btn-default pull-right">CSV</button>
-                  <button onclick="showSQLDialog();" class="hidden btn btn-xs btn-default pull-right">SQL</button>
-                  <button onclick="clearEnv();" class="btn btn-xs btn-default pull-right">Clear</button>
+                  <button title="SQL" onclick="showSQLDialog();" class="hidden btn btn-xs btn-default pull-right">SQL</button>
+                  <button title="Export to CSV" onclick="exportToCSV();" class="btn btn-xs btn-default pull-right">CSV</button>
+                  <button title="Clear Environment" onclick="clearEnv();" class="btn btn-xs btn-default pull-right">Clear</button>
+                  <button title="Save Environment" onclick="saveEnv();" class="btn btn-xs btn-default pull-right">Save</button>
+                  <button title="Restore Environment" onclick="restoreEnv();" class="btn btn-xs btn-default pull-right">Restore</button>
                 </h3>
               </div>
               <div class="panel-body">
