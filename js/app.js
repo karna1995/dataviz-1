@@ -1,6 +1,8 @@
-/*
- * js module for controlling k2m app.
- * */
+/**
+ * JavaScript module for controlling Dataviz app.
+ * 
+ * @author: Prahlad Yeri  (prahladyeri@yahoo.com)
+ */
 var conn = {}; //connection information
 var tables = {}; //currently selected data sources
 var currentTable = ""; //currently selected table for SQL "from" clause
@@ -15,18 +17,25 @@ var numTypes = ["float", "double", "decimal", "int", "smallint",
     "tinyint", "mediumint", "bigint"];
 var env = "";
 
-$(document).ready(function() 
+function init()
 {
     clearChart();
+    fetchEnvs();
     conn = localStorage.getItem("conn");
     if (conn==null) {
         conn={};
-        //$("#connectDialog").modal('show');
         showConnectDialog();
     } else {
         conn = JSON.parse(conn);
         connect();
     }
+    handlers();
+}
+
+function handlers() {
+    $("body").on("click", "#ddnrestore .dropdown-menu li a", function() {
+        restoreEnv($(this).text());
+    });
 
     //http://stackoverflow.com/questions/19032597/javascript-event-binding-persistence
     $("body").on('click', '.dropdown.dimension li a, .dropdown.measure li a', function() {
@@ -53,8 +62,8 @@ $(document).ready(function()
             theParent.removeClass('btn-info').addClass('btn-success');
         }
         drawTheChart();
-    });
-});
+    });    
+}
 
 function exportToCSV() {
     console.log("exportToCSV()");
@@ -63,7 +72,7 @@ function exportToCSV() {
         return;
     }
    $.ajax({
-        url: "",
+        url: "app.php",
         type: "POST",
         data: {
             Server:conn.Server,
@@ -241,7 +250,7 @@ function connect() {
     console.log("connect");
     $("#connectDialog .glyphicon-refresh").addClass("spinning");
     $.ajax({
-        url: "",
+        url: "app.php",
         type: "POST",
         data: conn ,
         error: function(response) {
@@ -301,7 +310,7 @@ function doTestCustomSQL(options) {
     data.SQL = $("#txtCustomSQL").val();
     console.log("SQL", data.SQL);
     $.ajax({
-        url: "",
+        url: "app.php",
         method: "POST",
         data: data,
         success: function(data){
@@ -533,7 +542,7 @@ function drawTheChart() {
         $("#panelDimensions .glyphicon-refresh").addClass("spinning");
         $("#panelMeasures .glyphicon-refresh").addClass("spinning");
         $.ajax({
-            url: "",
+            url: "app.php",
             type: "POST",
             data: {
                 Server:conn.Server,
@@ -591,7 +600,8 @@ function drawTheChart() {
 function drawChart(categories, series) {
     var options = {};
     options.chart = {type: currentChartType}; //'bar'
-    options.title = {text: currentDimensions[0] + " wise chart"};
+    //options.title = {text: currentDimensions[0] + " wise chart"};
+    options.title = {text: ""};
     options.xAxis = {categories: categories};
     options.yAxis = {title: {
                 text: 'Units'
@@ -608,7 +618,26 @@ function clearEnv() {
     clearChart();
 }
 
+function fetchEnvs() {
+    console.log("fetching all envs.");
+    $("#ddnrestore .dropdown-menu li").remove();
+    $.ajax({
+        url: "app.php",
+        method: "POST",
+        data: {FETCH_ENVS: ""},
+        success: function(data) {
+            console.log(data);
+            var theList = JSON.parse(data);
+            for(var i=0;i<theList.length;i++) {
+                $("#ddnrestore .dropdown-menu").append("<li><a href='#'>" + theList[i]  + "</a></li>");
+            }
+        }
+    });
+}
+
 function saveEnv() {
+    var fileName = prompt("Enter a filename: ");
+    if (fileName==null || fileName.length==0) return;
     console.log("saveEnv()");
     var obj = {};
     obj.chartData = lastChartData;
@@ -619,24 +648,26 @@ function saveEnv() {
     obj.tables = $("#panelTables .panel-body").html();
     env = JSON.stringify(obj);
     $.ajax({
-        url: "",
+        url: "app.php",
         method: "POST",
-        data: {SAVE_ENV: env},
-        success: function(data){
+        data: {SAVE_ENV: env, FILE: fileName},
+        success: function(data) {
             console.log(data);
+            fetchEnvs();
         }
     });
 }
 
-function restoreEnv() {
-    console.log("restoreEnv()");
+function restoreEnv(fileName, callback) {
+    console.log("restoreEnv()", fileName);
     $.ajax({
-        url: "",
-        method: "POST",
-        data: {GET_ENV: ""},
+        url: "app.php",
+        type: "POST",
+        data: {GET_ENV: fileName},
         success: function(data) {
             if (data.indexOf("not found") > -1) {
                 alert(data);
+                if (callback != undefined) callback(data);
                 return;
             }
             env = data;
@@ -648,6 +679,7 @@ function restoreEnv() {
             $("#panelBodyColumns").html(obj.columns);
             $("#panelTables .panel-body").html(obj.tables);
             drawChart(lastChartData.categories, lastChartData.series);
+            if (callback != undefined) callback(data);
         }
     });
 }
@@ -659,7 +691,7 @@ function clearChart() {
         type: 'line',//'bar'
     },
     title: {
-        text: 'Data Visualizer'
+        text: ''
     },
     xAxis: {
         categories: ['dummy-dimension-val1','dummy-dimension-val2','dummy-dimension-val3']
