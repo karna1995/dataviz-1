@@ -84,6 +84,9 @@ body {
     padding: 3px;
 }
 
+#panelTop .btn {
+    
+}
     
 #panelMeasures .panel-body,
 #panelDimensions .panel-body {
@@ -94,6 +97,7 @@ body {
 #panelDimensions .dimension {
     display:block;
     margin: 1px 1px;
+    border: 0px none black;
 }
 
 
@@ -107,7 +111,10 @@ body {
     padding-bottom: 7px;
 }
 
-    
+#panelTables .panel-heading {
+    cursor: pointer;
+}
+   
 #panelTables .panel-body {
     max-height: 200px;
     overflow-y: scroll;
@@ -143,10 +150,24 @@ button.btn.btn-danger {
 </style>
 <div class="container" style="margin-top: 2px;">
     <div class="row">
-        <div class="col-md-4">
+        <div class="col-md-3">
+            <div id="panelTop" >
+                <div class="panel-body" style="border: 0px none black;">
+                <h3 style="margin: 0px;">
+                    <a class="" href="#" onclick="saveEnv();"><small>Save Chart</small></a>
+                    <span id="ddnrestore" class="dropdown pull-right">
+                        <a href="#"  data-toggle="dropdown"  title="Restore Environment" class=""><small>Restore Chart</small></a>
+                        <ul class="dropdown-menu" role="menu">
+                            
+                        </ul>
+                    </span>
+                </h3>
+                </div>
+            </div>
+
             <div id="panelTables" class="panel panel-default">
-              <div class="panel-heading">
-                <h3 class="panel-title"><button data-toggle="modal" onclick="showConnectDialog();" class="pull-right btn btn-xs btn-default" title="Settings"><span class="glyphicon glyphicon-cog"></span></button> Data Sources</h3>
+              <div class="panel-heading" onclick="showConnectDialog();">
+                <h3 class="panel-title"><button data-toggle="modal" onclick="showConnectDialog();" class="hidden pull-right btn btn-xs btn-default" title="Settings"><span class="glyphicon glyphicon-cog"></span></button> Data Sources</h3>
               </div>
               <div class="panel-body">
                 <div>
@@ -188,7 +209,7 @@ button.btn.btn-danger {
               </div>
             </div>
         </div>
-        <div class="col-md-8">
+        <div class="col-md-9">
                     <div id="panelColumns"  class="panel panel-default">
                       <div class="panel-heading"  >
                         <h3 class="panel-title columns"><span class="glyphicon glyphicon-th">&nbsp;</span>Columns</h3>
@@ -224,13 +245,6 @@ button.btn.btn-danger {
                   <button title="SQL" onclick="showSQLDialog();" class="hidden btn btn-xs btn-default pull-right">SQL</button>
                   <button title="Export to CSV" onclick="exportToCSV();" class="btn btn-xs btn-default pull-right">CSV</button>
                   <button title="Clear Environment" onclick="clearEnv();" class="btn btn-xs btn-default pull-right">Clear</button>
-                  <button title="Save Environment" onclick="saveEnv();" class="btn btn-xs btn-default pull-right">Save</button>
-                    <span id="ddnrestore" class="dropdown pull-right">
-                        <button  data-toggle="dropdown"  title="Restore Environment" class="btn btn-xs btn-default">Restore</button>
-                        <ul class="dropdown-menu" role="menu">
-                            
-                        </ul>
-                    </span>
                 </h3>
               </div>
               <div class="panel-body">

@@ -301,7 +301,7 @@ function showTablesDialog(data) {
     divBody += "</div>"; //class='input-group'>
     $("#selectTableDialog .modal-body #tabTables").html(divBody);
     $("#selectTableDialog").modal('show');
-    //window.data = data;
+    window.data = data;
 }
 
 function doTestCustomSQL(options) {
@@ -638,24 +638,30 @@ function fetchEnvs() {
 }
 
 function saveEnv() {
-    var fileName = prompt("Enter a filename: ");
-    if (fileName==null || fileName.length==0) return;
-    console.log("saveEnv()");
-    var obj = {};
-    obj.chartData = lastChartData;
-    obj.measures = $("#panelBodyMeasures").html();
-    obj.dimensions = $("#panelBodyDimensions").html();
-    obj.rows = $("#panelBodyRows").html();
-    obj.columns = $("#panelBodyColumns").html();
-    obj.tables = $("#panelTables .panel-body").html();
-    env = JSON.stringify(obj);
-    $.ajax({ 
-        url: "app.php",
-        method: "POST",
-        data: {SAVE_ENV: env, FILE: fileName},
-        success: function(data) {
-            console.log(data);
-            fetchEnvs();
+    bspopup({
+        type: "input",
+        text: "Enter a filename: ",
+        success: function(ev) {
+            var fileName = ev.value;
+            if (fileName==null || fileName.length==0) return;
+            console.log("saveEnv()");
+            var obj = {};
+            obj.chartData = lastChartData;
+            obj.measures = $("#panelBodyMeasures").html();
+            obj.dimensions = $("#panelBodyDimensions").html();
+            obj.rows = $("#panelBodyRows").html();
+            obj.columns = $("#panelBodyColumns").html();
+            obj.tables = $("#panelTables .panel-body").html();
+            env = JSON.stringify(obj);
+            $.ajax({ 
+                url: "app.php",
+                method: "POST",
+                data: {SAVE_ENV: env, FILE: fileName},
+                success: function(data) {
+                    console.log(data);
+                    fetchEnvs();
+                }
+            });
         }
     });
 }

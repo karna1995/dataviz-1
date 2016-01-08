@@ -21,23 +21,7 @@ jQuery.fn.center = function () {
  * Depends on jQuery and Bootstrap.
  * */
 function bspopup(options, success) {
-    var obj = options;
-	
-	//text, type, title
-	if (typeof(obj)=='string') {
-		text = obj;
-	}
-	else {
-		text = obj.text; //.replace("\n","<br>");
-	}
-	
-	type = obj.type;
-	title = obj.title;
-	//if (obj.delay!=undefined) delay = obj.delay;
-	
-	if (type==undefined) type='info';
-	
-    if ($("#popupBoxGeneric").length == 0) {
+    if ($(".popupBox").length == 0) {
         $.get("js/modals.dat", function(data){
             $('body').append(data);
             bspopup(options, success);
@@ -45,18 +29,52 @@ function bspopup(options, success) {
         });
     }
     
-    var theBox = $("#popupBoxGeneric").clone();
-    theBox.attr("id", "popupBox" + (new Date().getTime()))
-    .removeClass("hidden")
-    .find(".messageText").text(text);
+	//text, type, title
+	if (typeof(options)=='string') {
+		text = options;
+	}
+	else {
+		text = options.text; //.replace("\n","<br>");
+	}
+	
+	type = options.type;
+	title = options.title;
+	//if (obj.delay!=undefined) delay = obj.delay;
+	if (type==undefined) type='text';
+    var proto = '';
+    if (type=='text') {
+        proto = 'Generic';
+    }
+    else if (type=='input') {
+        proto = 'Input';
+    }
+    
+    
+    var theBox = $("#popupBox" + proto).clone();
+    //theBox.attr("id", "popupBox" + (new Date().getTime()))
+    theBox.attr("id", "popupBox" + (Math.random() + "").replace(".","") )
+    
+    .removeClass("hidden");
+    theBox.find(".messageText").text(text);
+    
+    if (type=='input' && options.success!=undefined) {
+        theBox.find("#btnOK").click(function() {
+            var ev = {};
+            ev.value = theBox.find("#txtInput").val(); 
+            options.success(ev);
+        });
+    }
+    
     theBox.on("hidden.bs.modal", function(e) {
-        if (success!=undefined) {
-            ev = {};
-            success(ev);
+        if (options.complete!=undefined) {
+            var ev = {};
+            //ev.id = theBox.attr("id");
+            options.complete(ev);
         }
+        theBox.remove();
     });
+    
     theBox.modal('show');
-    //theBox.center();
 }
 
 //http://stackoverflow.com/questions/985272/selecting-text-in-an-element-akin-to-highlighting-with-your-mouse

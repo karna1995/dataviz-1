@@ -88,7 +88,7 @@ if (count($_POST)>0) {
             exit(json_encode($data));
         }
         else {
-            exit("Error code: " . $arr[0] . "\n" . $arr[1] . "-" . $arr[2]);
+            exit("Error code: " . $arr[0] . "-" . $arr[1] . "-" . $arr[2]);
         }
     } else {
         //output all tables and columns
