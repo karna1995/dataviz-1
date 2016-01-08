@@ -45,22 +45,33 @@ function bspopup(options, success) {
     if (type=='text') {
         proto = 'Generic';
     }
-    else if (type=='input') {
+    else if (type=='input' || type=='radiolist') {
         proto = 'Input';
     }
     
-    
     var theBox = $("#popupBox" + proto).clone();
-    //theBox.attr("id", "popupBox" + (new Date().getTime()))
     theBox.attr("id", "popupBox" + (Math.random() + "").replace(".","") )
-    
-    .removeClass("hidden");
+        .removeClass("hidden");
     theBox.find(".messageText").text(text);
+    if (type=='radiolist') {
+        theBox.find("#txtInput").remove();
+        html = '<select class="form-control">';
+        for(var i=0;i<options.list.length;i++) {
+            html += '<option value="' + options.list[i] + '">' + options.list[i] +  '</option>';
+        }
+        html += '<select>';
+        theBox.find(".modal-body").append(html);
+    }
     
-    if (type=='input' && options.success!=undefined) {
+    if (options.success!=undefined) {
         theBox.find("#btnOK").click(function() {
             var ev = {};
-            ev.value = theBox.find("#txtInput").val(); 
+            if (type=='input') {
+                ev.value = theBox.find("#txtInput").val(); 
+            }
+            else if (type=='radiolist') {
+                ev.value = theBox.find(".modal-body select").val(); 
+            }
             options.success(ev);
         });
     }

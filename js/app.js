@@ -13,6 +13,7 @@ var columns = [];
 var rows = [];
 var lastSQL = ""; //last successfully executed sql statement
 var lastChartData = {}; //last successful data used to draw the chart
+var lastEnvList = [];
 var numTypes = ["float", "double", "decimal", "int", "smallint",
     "tinyint", "mediumint", "bigint"];
 var env = "";
@@ -630,6 +631,7 @@ function fetchEnvs() {
         success: function(data) {
             console.log(data);
             var theList = JSON.parse(data);
+            lastEnvList = theList;
             for(var i=0;i<theList.length;i++) {
                 $("#ddnrestore .dropdown-menu").append("<li><a href='#'>" + theList[i]  + "</a></li>");
             }

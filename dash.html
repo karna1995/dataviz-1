@@ -35,25 +35,37 @@
 <body>
     <script>
     $(document).ready(function() {
-        restoreEnv("data");
+        fetchEnvs();
+        //restoreEnv("data");
     });
 
     $("body").on("click", ".placeholder", function() {
-        filename = prompt("Enter saved filename: ");
-        if (filename==null || filename.length==0) return;
-        console.log('.placeholder_click');
-        $(this).removeClass("placeholder").addClass("chartContainer"); //swap placeholder for a proper class
-        $(this).html('<div id="theChart" class="chart"></div>'); 
-        restoreEnv(filename, function(data) {
-            if (data.indexOf("not found")>-1) {
-                $("#theChart").parent().remove();
-                $("#theChart").remove();
+        var thePlaceholder = $(this);
+        bspopup({
+            type: "radiolist",
+            text: "Enter saved filename: ",
+            list: lastEnvList,
+            success: function(ev) {
+                console.log("success!", ev.value);
+                filename = ev.value;
+                if (filename==null || filename.length==0) return;
+                console.log('.placeholder_click');
+                thePlaceholder.removeClass("placeholder").addClass("chartContainer"); //swap placeholder for a proper class
+                thePlaceholder.html('<div id="theChart" class="chart"></div>'); 
+                console.log('$("#theChart").length', $("#theChart").length);
+                restoreEnv(filename, function(data) {
+                    if (data.indexOf("not found")>-1) {
+                        $("#theChart").parent().remove();
+                        $("#theChart").remove();
+                    }
+                    else {
+                        $("#theChart").attr("id", "");
+                    }
+                    $(".main.row").append('<div class="placeholder col-md-5"><h1></h1></div>'); //add a new placeholder
+                });
             }
-            else {
-                $("#theChart").attr("id", "");
-            }
-            $(".main.row").append('<div class="placeholder col-md-5"><h1></h1></div>'); //add a new placeholder
         });
+        
         
     });
     </script>
