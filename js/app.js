@@ -649,7 +649,7 @@ function saveEnv() {
     obj.columns = $("#panelBodyColumns").html();
     obj.tables = $("#panelTables .panel-body").html();
     env = JSON.stringify(obj);
-    $.ajax({
+    $.ajax({ 
         url: "app.php",
         method: "POST",
         data: {SAVE_ENV: env, FILE: fileName},
