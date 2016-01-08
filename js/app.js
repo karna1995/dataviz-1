@@ -68,7 +68,9 @@ function handlers() {
 function exportToCSV() {
     console.log("exportToCSV()");
     if (lastSQL=="") {
-        alert("No executed SQL statement found.");
+        bspopup({
+            text: "No executed SQL statement found."
+        });
         return;
     }
    $.ajax({
@@ -256,14 +258,12 @@ function connect() {
         error: function(response) {
             $("#connectDialog .glyphicon-refresh").removeClass("spinning");
             $("#connectDialog").modal('hide');
-            //Handle error
         },
         success: function(data) {
             $("#connectDialog .glyphicon-refresh").removeClass("spinning");
             $("#connectDialog").modal('hide');
             if (data.indexOf("Error occurred") >= 0) {
-                alert(data);
-                //alert("Error occurred. Please check the connection parameters.");
+                bspopup({text: data});
                 return;
             }
             showTablesDialog(data);
@@ -301,7 +301,7 @@ function showTablesDialog(data) {
     divBody += "</div>"; //class='input-group'>
     $("#selectTableDialog .modal-body #tabTables").html(divBody);
     $("#selectTableDialog").modal('show');
-    window.data = data;
+    //window.data = data;
 }
 
 function doTestCustomSQL(options) {
@@ -318,12 +318,14 @@ function doTestCustomSQL(options) {
             if (data.indexOf("Error code:") == -1) {
                 if (!options.silent) {
                     result = JSON.parse(data);
-                    alert(result.length + " records returned");
+                    bspopup({text: result.length + " records returned"});
                     window.result = result;
                 }
                 if (options.success != undefined) options.success(data);
             } else {
-                if (!options.silent) alert(data);
+                if (!options.silent) {
+                    bspopup({text: data});
+                }
                 if (options.error != undefined) options.error();
             }
         }
@@ -344,12 +346,12 @@ function doSelectTable() {
         var data = doTestCustomSQL({
             silent: true,
             error: function() {
-                alert("Error occurred. Please check SQL statement.");
+                bspopup({text: "Error occurred. Please check SQL statement."});
             },
             success: function(data) {
                 var result = JSON.parse(data);
                 if (result.length==0) {
-                    alert("Zero rows returned.");
+                    bspopup({text: "Zero rows returned."});
                     return;
                 }
                 for (var key in result[0]) {
@@ -666,7 +668,7 @@ function restoreEnv(fileName, callback) {
         data: {GET_ENV: fileName},
         success: function(data) {
             if (data.indexOf("not found") > -1) {
-                alert(data);
+                bspopup(data);
                 if (callback != undefined) callback(data);
                 return;
             }

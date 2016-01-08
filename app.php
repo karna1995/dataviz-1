@@ -80,13 +80,15 @@ if (count($_POST)>0) {
         $sql = $_POST["SQL"];
         $sth = $dbh->prepare($sql);
         $sth->execute();
-        $code = substr($sth->errorCode(), 0, 2);
+        $arr = $sth->errorInfo();
+        //$code = substr($sth->errorCode(), 0, 2);
+        $code = substr($arr[0], 0, 2);
         if ($code=="00" || $code=="01") {
             $data = $sth->fetchAll();
             exit(json_encode($data));
         }
         else {
-            exit("Error code: " . $sth->errorCode());
+            exit("Error code: " . $arr[0] . "\n" . $arr[1] . "-" . $arr[2]);
         }
     } else {
         //output all tables and columns

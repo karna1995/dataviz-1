@@ -283,7 +283,7 @@ button.btn.btn-danger {
             <div class="tab-content">
                 <div role="tabpanel" class="tab-pane active" id="tabTables"></div>
                 <div role="tabpanel" class="tab-pane" id="tabCustomSQL">
-                    <textarea id="txtCustomSQL" rows="9" cols="70">SELECT * FROM;</textarea>
+                    <textarea id="txtCustomSQL" rows="7" cols="65">SELECT * FROM;</textarea>
                     <button onclick="doTestCustomSQL();" class="btn btn-default">Test</button>
                 </div>
             </div>
@@ -296,7 +296,7 @@ button.btn.btn-danger {
   </div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
 
-<div class="modal fade" id="sqlDialog" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+<div class="hidden modal fade" id="sqlDialog" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
@@ -334,5 +334,6 @@ button.btn.btn-danger {
         <li><a href="#">Remove</a></li>
     </ul>
   </span>
+  
 </body>
  </html>
