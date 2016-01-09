@@ -232,6 +232,11 @@ function allowDrop(ev) {
 }
 
 function doConnect() {
+    if ($("#connectDialog .refresh").hasClass("spinning")) {
+        bspopup("Connection in progress...");
+        return;
+    }
+    
     console.log("doConnect()");
     conn = {
         Server: $("#txtServer").val(),
@@ -246,23 +251,26 @@ function doConnect() {
 
 function connect() {
     console.log("connect");
-    $("#connectDialog .glyphicon-refresh").addClass("spinning");
+    $("#connectDialog .refresh").addClass("spinning");
     $.ajax({
         url: "app.php",
         type: "POST",
         data: conn ,
         error: function(response) {
-            $("#connectDialog .glyphicon-refresh").removeClass("spinning");
+            $("#connectDialog .refresh").removeClass("spinning");
             $("#connectDialog").modal('hide');
         },
         success: function(data) {
-            $("#connectDialog .glyphicon-refresh").removeClass("spinning");
+            $("#connectDialog .refresh").removeClass("spinning");
             $("#connectDialog").modal('hide');
             if (data.indexOf("Error occurred") >= 0) {
                 bspopup({text: data});
                 return;
             }
             showTablesDialog(data);
+        },
+        complete: function() {
+            $("#connectDialog .refresh").removeClass("spinning");
         }
     });
 }

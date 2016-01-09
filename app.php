@@ -44,7 +44,12 @@ if (count($_POST)>0) {
     $password = $_POST["Password"];
     $port = $_POST["Port"];
     try {
-        $dbh = new PDO("mysql:host=" . $server . ";port=" . $port .  ";dbname=" . $database, $username, $password);
+        $dbh = new PDO("mysql:host=" . $server . ";port=" . $port .  ";dbname=" . $database, 
+            $username, $password, array(
+            PDO::ATTR_TIMEOUT => "5",
+            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
+        ));
+        //$dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);         
     } catch(PDOException $e) {
         die("Error occurred: " . $e->getMessage());
     } catch(Exception $e) {
