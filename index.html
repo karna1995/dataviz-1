@@ -5,11 +5,12 @@
     <title>Dataviz</title>
     <script src="js/jquery.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
-    <script src="js/bootstrap-slider.js"></script>
+    <script src="js/jquery-ui.min.js"></script>
     <script src="js/highcharts.js"></script>
     <script src="js/utils.js"></script>
     <script src="js/app.js"></script>
     <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/jquery-ui.min.css">
 </head>
 <body>
 <script>
@@ -90,7 +91,8 @@ body {
 }
     
 #panelMeasures .panel-body,
-#panelDimensions .panel-body {
+#panelDimensions .panel-body,
+#panelFilters .panel-body {
     min-height: 20px;
 }
 
@@ -202,14 +204,11 @@ button.btn.btn-danger {
               </div>
             </div>
             
-            <div id="panelFilters" class="panel panel-default hidden">
+            <div id="panelFilters" class="hidden panel panel-default" >
               <div class="panel-heading">
                 <h3 class="panel-title">Filters</h3>
               </div>
-              <div class="panel-body">
-                <div>
-                    <span class="badge glyphicon glyphicon-circle-arrow-up"> </span><label class="label label-success">x >= 10</label><br>
-                </div>
+              <div id="panelBodyFilters" class="panel-body"  ondragover="allowDrop(event)"  ondrop="drop(event)" >
               </div>
             </div>
         </div>

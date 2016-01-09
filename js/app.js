@@ -15,6 +15,7 @@ var rows = [];
 var lastSQL = ""; //last successfully executed sql statement
 var lastChartData = {}; //last successful data used to draw the chart
 var lastEnvList = [];
+var filters = {}; //dict for all filters name:Filter.
 var numTypes = ["float", "double", "decimal", "int", "smallint",
     "tinyint", "mediumint", "bigint"];
 var env = "";
@@ -121,15 +122,55 @@ function drop(ev) {
     var control = $("#" + data);
     if (control.hasClass('measure') || control.hasClass('dimension')) {
         //One of the measure/dimension buttons on the bottom left
-        if (ev.target.id == "teaser" || ev.target.id=="teaserSmall") {
+        if ( $(ev.target).attr("id")=="panelBodyFilters" || $(ev.target).parent().attr("id") == "panelBodyFilters" 
+            && (control.hasClass("measure") || control.hasClass("dimension")) ) {
+            //measure dragged into dimension
+            //control.appendTo($(theParent));
+            var theType = "";
+            var theField = control.text();
+            if (control.hasClass("measure")) {
+                theType = "number";
+            }
+            else { //TODO: Handle Date datatype here.
+                theType = "string";
+            }
+            var filter = new Filter(theField, theType);
+            filters[theField] = filter;
+            //add a filter control
+            $("#panelBodyFilters").append("<button id='filter" + theField + "' class='btn btn-xs btn-default " + theType + "'>"
+             + theField + "<span class='glyphicon glyphicon-filter'></span></button>");
+            if (theType=="string") {
+                //
+            }
+            else if (theType=="number") {
+                $(".filterNumeric").modal('show');
+                $(".filterNumeric .rangeSlider").slider({
+                    range: true,
+                    min: 0,
+                    max: 10000,
+                    values: [10,500],
+                    slide: function(event, ui) {
+                        $(".filterNumeric .rangeValue").text(ui.values[0] + " - " + ui.values[1]);
+                    }
+                });
+                var theText = $(".rangeSlider").slider("values",0) + " - " + $(".rangeSlider").slider("values",1);
+                $(".filterNumeric .rangeValue").text(theText);
+                //$(".filterNumeric #txtRange").slider({});
+            }
+            return;
+        }
+        else if (ev.target.id == "teaser" || ev.target.id=="teaserSmall") {
             console.log("if teaser", ev.target.parentElement, ev.target.parentElement.id);
             theParent = ev.target.parentElement;
-        } else if (ev.target.id=="panelBodyRows" || ev.target.id=="panelBodyColumns") {
+        }
+        else if (ev.target.id=="panelBodyRows" || ev.target.id=="panelBodyColumns") {
             theParent = ev.target;
-        } else if (ev.target.id=="label") {
+        }
+        else if (ev.target.id=="label") {
             console.log("if label");
             theParent = ev.target.parentElement.parentElement;
-        } else if (($(ev.target).hasClass("measure") ||  $(ev.target).attr("id")=="panelBodyMeasures") 
+        }
+        else if (($(ev.target).hasClass("measure") ||  $(ev.target).attr("id")=="panelBodyMeasures") 
             && control.hasClass("dimension")) {
             //dimension dragged into measure
             theParent = $("#panelBodyMeasures")[0];
@@ -137,7 +178,8 @@ function drop(ev) {
             control.addClass("measure");
             control.appendTo($(theParent));
             return;
-        } else if (($(ev.target).hasClass("dimension") || $(ev.target).attr("id")=="panelBodyDimensions" )
+        }
+        else if (($(ev.target).hasClass("dimension") || $(ev.target).attr("id")=="panelBodyFilters" )
             && control.hasClass("measure")) {
             //measure dragged into dimension
             theParent =  $("#panelBodyDimensions")[0];
@@ -150,6 +192,7 @@ function drop(ev) {
             return;
         }
     }
+    //Continue handling for rows/columns drop only.
     console.log(".drop(). The target is: ", theParent.id);
     if (theParent.id=='panelBodyRows') {
         //this is dragged inside rows
@@ -176,66 +219,12 @@ function drop(ev) {
         theField.find("#label").text(control.text());
     }
     theField.find("#label").append('<span class="caret"></span>');
-    //~ theField.find("li a").on('click', function(){
-        //~ var text = $(this).text().toUpperCase();
-        //~ var theParent  = $(this).parents("span.dropdown").find("#label");
-        //~ if (text == "DIMENSION") {
-            //~ theParent.text(theParent.parent().attr("field"));
-            //~ theParent.append('<span class="caret"></span>');
-            //~ theParent.removeClass('btn-success').addClass('btn-info');
-        //~ } else if (text == 'REMOVE') {
-            //~ var thePanelBody = theParent.parent().parent();
-            //~ theParent.parent().remove();
-            //~ if (thePanelBody.find(".dropdown").length==0) {
-                //~ thePanelBody.append(getHTMLTeaser());
-            //~ }
-        //~ } else if (text.indexOf('MEASURES')==0) {
-            //~ return; //This is just a placeholder
-        //~ } else { //summary
-            //~ var theSummary = text;
-            //~ if (theSummary == 'AVERAGE') theSummary='AVG';
-            //~ theParent.text(theSummary + "(" + theParent.parent().attr("field") + ")");
-            //~ theParent.append('<span class="caret"></span>');
-            //~ theParent.removeClass('btn-info').addClass('btn-success');
-        //~ }
-        //~ drawTheChart();
-    //~ });
     $(theParent).append(theField);
     $(theParent).find("#teaser").remove();
     
     currentMeasures = [];
     currentDimensions = [];
     drawTheChart();
-    
-
-    if  (false) { //(control.hasClass("measure")) {
-        var theParent;
-        var theText = $(document.getElementById(data)).text();
-        if (ev.target.id == "teaser" || ev.target.id=="teaserSmall") {
-            theParent = $("#panelColumns .panel-body")[0];
-        } else {
-            theParent = ev.target;
-        }
-        
-        console.log(".drop(). The target is: ", theParent.id);
-        theParent.appendChild(document.getElementById(data));
-        if ($("#panelColumns .measure").length>0) {
-            console.log("avail measures length", $("#panelColumns .measure").length);
-            if ($("#panelColumns #teaser").length>0) $("#panelColumns #teaser").remove();
-        } else {
-            console.log("avail measures length", $("#panelColumns .measure").length);
-            $("#panelColumns .panel-body").html(getHTMLTeaser());
-        }
-        currentMeasures = [];
-         //loop thru all labels inside #panelColumns
-        $("#panelColumns .measure").each(function(){
-            var theText = $(this).text();
-            currentMeasures.push(theText);
-        });
-        //add each to currentMeasures
-        drawTheChart();
-    }
-
 }
 
 function allowDrop(ev) {

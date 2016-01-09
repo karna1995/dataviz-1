@@ -7,9 +7,16 @@
 /**
  * Constructor for the Filter object
  * 
- * @param type Type of filter - "measure" or "dimension".
+ * @param name Name of the field.
+ * @param type Type of filter - number/string/date.
  * */
-function Filter = function(type) {
-    
+function Filter = function(name, type) {
+    this.name = name;
+    this.type = type;
+    this.condition = ""; //where/having
+    this.clause = ""; //x=1
+    this.exec = function() {
+        //TODO: Calculate the where clause here
+    }
     return this;
 }
