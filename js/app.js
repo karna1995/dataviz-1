@@ -35,6 +35,8 @@ function init()
         showConnectDialog();
     } else {
         conn = JSON.parse(conn);
+        showConnectDialog();
+        $("#connectDialog .refresh").addClass("spinning");
         connect();
     }
     handlers();
@@ -232,12 +234,13 @@ function allowDrop(ev) {
 }
 
 function doConnect() {
+    console.log("doConnect()");
     if ($("#connectDialog .refresh").hasClass("spinning")) {
-        bspopup("Connection in progress...");
+        console.log("spinning...");
+        //bspopup("Connection in progress...");
         return;
     }
     
-    console.log("doConnect()");
     conn = {
         Server: $("#txtServer").val(),
         Port: $("#txtPort").val(),
@@ -264,7 +267,14 @@ function connect() {
             $("#connectDialog .refresh").removeClass("spinning");
             $("#connectDialog").modal('hide');
             if (data.indexOf("Error occurred") >= 0) {
-                bspopup({text: data});
+                bspopup({
+                    text: data,
+                    button2: "Retry",
+                    success: function(ev) {
+                        //console.log(ev.button);
+                        
+                        if (ev.button == 'button2') showConnectDialog();
+                    }});
                 return;
             }
             showTablesDialog(data);
@@ -407,8 +417,6 @@ function doSelectTable() {
 function buildTheTables(options) {
     var data = options.data;
     var divtables = "<div>";
-    //var divdimensions = "";
-    //var divmeasures = "";
     tables = {};
     
     //data = JSON.parse(data);
@@ -440,65 +448,46 @@ function buildTheTables(options) {
     window.tables = tables;
     
     //attach events to .table-button
-    $(".table-button").each(function(index, obj){
-        $(this).on("click", {id: $(this).attr("id")}, function(event){
-            var tname = event.data.id.substring(5);
-            currentTable = tables[tname].schema + "." +  tname;
-            currentDimensions = [];
-            currentMeasures = [];
-            console.log(".click ", event.data.id, tables[tname].measures);
-            //generate html for dimensions and measures
-            var divdimensions = "";
-            var divmeasures = "";
-            for(var i=0;i<tables[tname].measures.length;i++) {
-                console.log("measure:",tables[tname].measures[i]);
-                divmeasures += '<label id="' + tables[tname].measures[i] +  '" draggable="true" ondragstart="drag(event)"  class="btn btn-xs btn-default measure">' + tables[tname].measures[i] + '</label>';
-            }
-            if (tables[tname].dimensions.length >0) {
-                //currentDimension = tables[tname].dimensions[0];
-            }
-            for(var i=0;i<tables[tname].dimensions.length;i++) {
-                console.log("dimensions:",tables[tname].dimensions[i]);
-                divdimensions += '<label id="' + tables[tname].dimensions[i] +  '"  draggable="true" ondragstart="drag(event)" class="btn btn-xs btn-default dimension">' + tables[tname].dimensions[i] + '</label>';
-            }
-            divdimensions += "";
-            divmeasures += "";
-            $("#panelDimensions .panel-body").html(divdimensions);
-            $("#panelMeasures .panel-body").html(divmeasures);
-            
-            $("#panelColumns .panel-body").html(getHTMLTeaser());
-            //~ $("#panelColumns .panel-title.columns label").each(function() {
-                //~ $(this).remove();
-            //~ });
-            $("#panelRows .panel-body").html(getHTMLTeaser());
-            
-            $("button.dimension").on('click', function(){
-                //currentDimension = $(this).text();
-                //drawTheChart();
-            });
-            
-            //~ $("#panelMeasures .measure input[type='checkbox']").click(function(){
-                //~ //console.log($(this).attr("id"), $(this).is(":checked"));
-                //~ var measure = $(this).attr("id");
-                //~ if ($(this).is(":checked")) {
-                    //~ currentMeasures.push(measure);
-                //~ }
-                //~ else {
-                    //~ if (currentMeasures.indexOf(measure)>-1) {
-                        //~ currentMeasures.remove(measure);
-                    //~ }
-                //~ }
-                //~ if (currentMeasures.length>0) {
-                    //~ drawTheChart();
-                //~ }
-                //~ else {
-                    //~ clearChart();
-                //~ }
-            //~ });
-        });
+    //~ $(".table-button").each(function(index, obj) {
+        //~ $(this).on("click", {id: $(this).attr("id")}, function(event) {
+        //~ });
+    //~ });
+    
+    $(".table-button").click(function(){
+        showConnectDialog();
     });
     
-    $(".table-button:first").click(); //lets auto click the first table in the box.
+    //$(".table-button:first").click(); //lets auto click the first table in the box.
+    buildTable($(".table-button:first").attr("id").substring(5));
+}
+
+function buildTable(tname) {
+    //var tname = event.data.id.substring(5);
+    currentTable = tables[tname].schema + "." +  tname;
+    currentDimensions = [];
+    currentMeasures = [];
+    console.log(".click ", tname, tables[tname].measures);
+    //generate html for dimensions and measures
+    var divdimensions = "";
+    var divmeasures = "";
+    for(var i=0;i<tables[tname].measures.length;i++) {
+        console.log("measure:",tables[tname].measures[i]);
+        divmeasures += '<label id="' + tables[tname].measures[i] +  '" draggable="true" ondragstart="drag(event)"  class="btn btn-xs btn-default measure">' + tables[tname].measures[i] + '</label>';
+    }
+    if (tables[tname].dimensions.length >0) {
+        //currentDimension = tables[tname].dimensions[0];
+    }
+    for(var i=0;i<tables[tname].dimensions.length;i++) {
+        console.log("dimensions:",tables[tname].dimensions[i]);
+        divdimensions += '<label id="' + tables[tname].dimensions[i] +  '"  draggable="true" ondragstart="drag(event)" class="btn btn-xs btn-default dimension">' + tables[tname].dimensions[i] + '</label>';
+    }
+    divdimensions += "";
+    divmeasures += "";
+    $("#panelDimensions .panel-body").html(divdimensions);
+    $("#panelMeasures .panel-body").html(divmeasures);
+
+    $("#panelColumns .panel-body").html(getHTMLTeaser());
+    $("#panelRows .panel-body").html(getHTMLTeaser());
 }
 
 /*

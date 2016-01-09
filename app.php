@@ -46,7 +46,7 @@ if (count($_POST)>0) {
     try {
         $dbh = new PDO("mysql:host=" . $server . ";port=" . $port .  ";dbname=" . $database, 
             $username, $password, array(
-            PDO::ATTR_TIMEOUT => "5",
+            PDO::ATTR_TIMEOUT => "3",
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
         ));
         //$dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);         

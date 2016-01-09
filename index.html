@@ -115,7 +115,7 @@ body {
 }
 
 #panelTables .panel-heading {
-    cursor: pointer;
+    /*cursor: pointer;*/
 }
    
 #panelTables .panel-body {
@@ -173,7 +173,7 @@ button.btn.btn-danger {
     <div class="row">
         <div class="col-md-3">
             <div id="panelTables" class="panel panel-default">
-              <div class="panel-heading" onclick="showConnectDialog();">
+              <div class="panel-heading" onclick="">
                 <h3 class="panel-title"><button data-toggle="modal" onclick="showConnectDialog();" class="hidden pull-right btn btn-xs btn-default" title="Settings"><span class="glyphicon glyphicon-cog"></span></button> Data Sources</h3>
               </div>
               <div class="panel-body">
@@ -187,9 +187,6 @@ button.btn.btn-danger {
                 <h3 class="panel-title">Dimensions</h3>
               </div>
               <div id="panelBodyDimensions" class="panel-body"  ondragover="allowDrop(event)"  ondrop="drop(event)" >
-                    <button class="btn btn-xs btn-default">Country</button><br>
-                    <button class="btn btn-xs btn-default">Age</button><br>
-                    <button class="btn btn-xs btn-default">Date</button><br>
               </div>
             </div>
             <div id="panelMeasures" class="panel panel-default" >
@@ -278,7 +275,7 @@ button.btn.btn-danger {
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-default" onclick="javascript:doConnect();"><span class="refresh glyphicon glyphicon-refresh"></span> Connect</button>
+        <button type="button" class="btn btn-default" onclick="doConnect();"><span class="refresh glyphicon glyphicon-refresh"></span> Connect</button>
       </div>
     </div><!-- /.modal-content -->
   </div><!-- /.modal-dialog -->

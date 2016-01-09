@@ -63,6 +63,26 @@ function bspopup(options, success) {
         theBox.find(".modal-body").append(html);
     }
     
+    if (type=='text') 
+    {
+        if (options.button1 != undefined) {
+            theBox.find("#btnClose").text(options.button1);
+            theBox.find("#btnClose").click(function(){
+                ev = {};
+                ev.button = "button1";
+                options.success(ev);
+            });
+        }
+        if (options.button2 != undefined) {
+            theBox.find(".modal-footer").append("<button id='button2' class='btn btn-default'  data-dismiss='modal'>" + options.button2 + "</button>")
+            theBox.find("#button2").click(function(){
+                ev = {};
+                ev.button = "button2";
+                options.success(ev);
+            });
+        }
+    }
+    
     if (options.success!=undefined) {
         theBox.find("#btnOK").click(function() {
             var ev = {};
