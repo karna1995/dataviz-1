@@ -22,7 +22,7 @@ jQuery.fn.center = function () {
  * */
 function bspopup(options, success) {
     if ($(".popupBox").length == 0) {
-        $.get("js/modals.dat", function(data){
+        $.get("js/modalpopups.dat", function(data){
             $('body').append(data);
             bspopup(options, success);
             return;

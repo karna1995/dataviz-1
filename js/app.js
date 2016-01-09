@@ -1,8 +1,9 @@
 /**
- * JavaScript module for controlling Dataviz app.
+ * JavaScript module for the Dataviz app.
  * 
  * @author: Prahlad Yeri  (prahladyeri@yahoo.com)
- */
+ * */
+
 var conn = {}; //connection information
 var tables = {}; //currently selected data sources
 var currentTable = ""; //currently selected table for SQL "from" clause
@@ -20,6 +21,11 @@ var env = "";
 
 function init()
 {
+    $.get("js/modals.dat", function(data){
+        $('body').append(data);
+        return;
+    });
+    
     clearChart();
     fetchEnvs();
     conn = localStorage.getItem("conn");
