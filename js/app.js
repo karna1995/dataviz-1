@@ -46,6 +46,11 @@ function handlers() {
     $("body").on("click", "#ddnrestore .dropdown-menu li a", function() {
         restoreEnv($(this).text());
     });
+    
+    $("body").on("click", ".table-button", function(){
+        showConnectDialog();
+    });
+
 
     //http://stackoverflow.com/questions/19032597/javascript-event-binding-persistence
     $("body").on('click', '.dropdown.dimension li a, .dropdown.measure li a', function() {
@@ -452,10 +457,6 @@ function buildTheTables(options) {
         //~ $(this).on("click", {id: $(this).attr("id")}, function(event) {
         //~ });
     //~ });
-    
-    $(".table-button").click(function(){
-        showConnectDialog();
-    });
     
     //$(".table-button:first").click(); //lets auto click the first table in the box.
     buildTable($(".table-button:first").attr("id").substring(5));
