@@ -711,9 +711,9 @@ function processFiltersWhere() {
             if (filter.stringMatcher=='general') {
                 var vals = "(";
                 for(var j=0;j<filter.General.length;j++) {
-                    vals = 
+                    //vals = 
                 }
-                if (filter.stringGeneralExclude) sql += "not ";
+                //if (filter.stringGeneralExclude) sql += "not ";
             }
             else if (filter.stringMatcher=='wildcard') {
             }
