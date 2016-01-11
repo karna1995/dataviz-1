@@ -245,6 +245,7 @@ function showFilterDialog(control) {
     }
     else {
         //case of just changing existing filter.
+        console.log("case of changing filter: ", theField);
         filter = filters[theField];
         theType = filter.type;
         isDragdrop = false;
@@ -255,6 +256,7 @@ function showFilterDialog(control) {
     $('#filter' + theField).remove(); //remove old one first
     //add a filter control
     if (theType=="string") {
+        $(".filterString .applyButton").unbind("click");
         $(".filterString .applyButton").click(function() {
             if ($('#filter' + theField).length>=1) return;
             console.log("click() .filterString .applyButton");
@@ -280,8 +282,11 @@ function showFilterDialog(control) {
             filter.stringWcExclude = $("#WcExclude").prop("checked");
             drawTheChart();
         });
+        $(".filterString .closeButton").unbind("click");
         $(".filterString .closeButton").click(function() {
-            delete filters[theType];
+            if (!filters.hasOwnProperty(theField)) return;
+            console.log("Cleared filter ", theField);
+            delete filters[theField];
             drawTheChart();
         });
         console.log("now pulling values from db");
