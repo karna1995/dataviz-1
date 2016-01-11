@@ -38,7 +38,7 @@
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+        <button type="button" class="hidden close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
         <h4 class="modal-title">Filter Strings</h4>
       </div>
       <div class="modal-body" style="">
@@ -79,7 +79,7 @@
                           <div style="min-height: 200px; max-height: 200px;overflow-y: scroll;">
                             <label>Match Value:</label>
                             <label class="pull-right">Exclude <input id="WcExclude" type="checkbox"> </label>
-                            <input type="text" id="txtWcValue">
+                            <input type="text" id="txtWcValue" >
                             <div class="input-group">
                                 <div><input checked name="WcType" value="contains" type="radio">&nbsp;Contains</div>
                                 <div><input name="WcType" value="startswith" type="radio">&nbsp;Starts with</div>

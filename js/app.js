@@ -275,15 +275,14 @@ function showFilterDialog(control) {
             });
             filter.stringGeneralExclude = $("#generalExclude").prop("checked");
             filter.stringWcValue = $("#txtWcValue").val();
-            filter.stringWcType = $("input[name='WcType']").val();
+            filter.stringWcType = $("input[name='WcType']:checked").val();
             filter.stringWcIncludeAll = $("#WcIncludeAll").prop("checked");
             filter.stringWcExclude = $("#WcExclude").prop("checked");
-            //$("#")
-            //filter.html = $(".filterString").html();
-            //TODO: Process filter and set where/having clause
+            drawTheChart();
         });
         $(".filterString .closeButton").click(function() {
             delete filters[theType];
+            drawTheChart();
         });
         console.log("now pulling values from db");
         var data = $.extend({}, conn);
@@ -704,18 +703,38 @@ function drawTheChart() {
  */
 function processFiltersWhere() {
     sql = "";
-    for(var i=0;i<filters.length;i++) {
-        var filter = filters[i];
+    for(key in filters) {
+        var filter = filters[key];
         if (filter.type=='string') {
-            sql += (sql.length==0?"where ":" and " ) + filter.name;
+            sql += (sql.length==0?" where ":" and " ) + filter.name;
             if (filter.stringMatcher=='general') {
                 var vals = "(";
-                for(var j=0;j<filter.General.length;j++) {
-                    //vals = 
+                for(var j=0;j<filter.stringGeneral.length;j++) {
+                    vals += (vals.length==1?"'":",'") + filter.stringGeneral[j].replace(/'/g,"\\'") + "'";
                 }
-                //if (filter.stringGeneralExclude) sql += "not ";
+                vals += ")";
+                //TODO: make a proper fix for the below mess.
+                if (vals=="()") vals="('foobar1234567890')"; //No value selected, avoid sql error by selecting a dummy value.
+                sql += (filter.stringGeneralExclude ? " not in " : " in ") + vals;
             }
             else if (filter.stringMatcher=='wildcard') {
+                if (filter.stringWcIncludeAll == false && filter.stringWcValue.length==0) {
+                    sql += " = ''"; //just select empty values
+                }
+                else {
+                    if (filter.stringWcType == "contains") {
+                        sql += (filter.stringWcExclude ? " not like " : " like ") + "'%" + filter.stringWcValue + "%'";
+                    }
+                    else if  (filter.stringWcType == "startswith") {
+                        sql += (filter.stringWcExclude ? " not like " : " like ") + "'" + filter.stringWcValue + "%'";
+                    }
+                    else if  (filter.stringWcType == "endswith") {
+                        sql += (filter.stringWcExclude ? " not like " : " like ") + "'%" + filter.stringWcValue + "'";
+                    }
+                    else if  (filter.stringWcType == "equals") {
+                        sql += (filter.stringWcExclude ? " not like " : " like ") + "'" + filter.stringWcValue + "'";
+                    }
+                }
             }
         }
     }
