@@ -44,26 +44,59 @@
       <div class="modal-body" style="">
             <!-- Nav tabs -->
             <ul class="nav nav-tabs" role="tablist">
-                <li role="presentation" class="active"><a href="#tabGeneral" role="tab" data-toggle="tab">General</a></li>
-                <li role="presentation"><a href="#tabWildcard" role="tab" data-toggle="tab">Wildcard</a></li>
+                <li class="general active" role="presentation"><a href="#tabGeneral" role="tab" data-toggle="tab">General</a></li>
+                <li class="wildcard" role="presentation"><a href="#tabWildcard" role="tab" data-toggle="tab">Wildcard</a></li>
             </ul>
             <!-- Tab panes -->
             <div class="tab-content">
                 <div role="tabpanel" class="tab-pane active" id="tabGeneral">
                     <div class="panel-body">
-                        <input class="form-control" placeholder="Enter search text">
-                        <label><input type="checkbox"> Foo</label>
-                        <label><input type="checkbox"> Bar</label>
-                        <label><input type="checkbox"> Baz</label>
+                        <input class="hidden form-control" placeholder="Enter search text">
+                        <div class="stringCheckBoxes" style="max-height: 200px;overflow-y: scroll;">
+                            <div><label><input type="checkbox"> Foo</label></div>
+                            <div><label><input type="checkbox"> Bar</label></div>
+                            <div><label><input type="checkbox"> Baz</label></div>
+                            <div><label><input type="checkbox"> Foo</label></div>
+                            <div><label><input type="checkbox"> Bar</label></div>
+                            <div><label><input type="checkbox"> Baz</label></div>
+                            <div><label><input type="checkbox"> Foo</label></div>
+                            <div><label><input type="checkbox"> Bar</label></div>
+                            <div><label><input type="checkbox"> Baz</label></div>
+                            <div><label><input type="checkbox"> Foo</label></div>
+                            <div><label><input type="checkbox"> Bar</label></div>
+                            <div><label><input type="checkbox"> Baz</label></div>
+                        </div>
+                        
+                        <div>
+                            <button onclick="$('.stringCheckBoxes input[type=&quot;checkbox&quot;]').prop('checked',true)" type="button" class="btn btn-xs btn-default">All</button>
+                            <button onclick="$('.stringCheckBoxes input[type=&quot;checkbox&quot;]').prop('checked',false)" type="button" class="btn btn-xs btn-default">None</button>
+                            <label class="pull-right">Exclude <input id="generalExclude"  class="" type="checkbox"></label>
+                        </div>
                     </div>
                 </div>
-                <div role="tabpanel" class="tab-pane" id="tabWildcard"></div>
+                <div role="tabpanel" class="tab-pane" id="tabWildcard">
+                      <div class="panel-body" >
+                          <div style="min-height: 200px; max-height: 200px;overflow-y: scroll;">
+                            <label>Match Value:</label>
+                            <label class="pull-right">Exclude <input id="WcExclude" type="checkbox"> </label>
+                            <input type="text" id="txtWcValue">
+                            <div class="input-group">
+                                <div><input checked name="WcType" value="contains" type="radio">&nbsp;Contains</div>
+                                <div><input name="WcType" value="startswith" type="radio">&nbsp;Starts with</div>
+                                <div><input name="WcType" value="endswith" type="radio">&nbsp;Ends with</div>
+                                <div><input name="WcType" value="equals" type="radio">&nbsp;Exactly matches</div>
+                            </div>
+                          </div>
+                          <label class=""><input id="WcIncludeAll" checked type="checkbox">&nbsp;Include all values when empty</label>
+                      </div>
+                </div>
                 <div role="tabpanel" class="tab-pane" id="tabLTE"></div>
                 <div role="tabpanel" class="tab-pane" id="tabSpecial"></div>
             </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-default btn-primary applyButton" >Apply</button>
+        <button type="button" class="btn btn-default closeButton" data-dismiss="modal">Clear</button>
       </div>
     </div>
   </div>

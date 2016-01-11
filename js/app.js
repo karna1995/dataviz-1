@@ -20,6 +20,9 @@ var numTypes = ["float", "double", "decimal", "int", "smallint",
     "tinyint", "mediumint", "bigint"];
 var env = "";
 
+/**
+ * To be called when used with index.html once its loaded.
+ * */
 function init()
 {
     $.get("js/modals.dat", function(data){
@@ -42,6 +45,9 @@ function init()
     handlers();
 }
 
+/**
+ * Body level event handlers for various buttons, labels, etc.
+ * */
 function handlers() {
     $("body").on("click", "#ddnrestore .dropdown-menu li a", function() {
         restoreEnv($(this).text());
@@ -50,8 +56,11 @@ function handlers() {
     $("body").on("click", ".table-button", function(){
         showConnectDialog();
     });
-
-
+    
+    $("body").on("click", ".filter-button", function(){
+        showFilterDialog($(this));
+    });
+    
     //http://stackoverflow.com/questions/19032597/javascript-event-binding-persistence
     $("body").on('click', '.dropdown.dimension li a, .dropdown.measure li a', function() {
         console.log("body.clicked");
@@ -131,39 +140,7 @@ function drop(ev) {
         //One of the measure/dimension buttons on the bottom left
         if ( $(ev.target).attr("id")=="panelBodyFilters" || $(ev.target).parent().attr("id") == "panelBodyFilters" 
             && (control.hasClass("measure") || control.hasClass("dimension")) ) {
-            //measure dragged into dimension
-            //control.appendTo($(theParent));
-            var theType = "";
-            var theField = control.text();
-            if (control.hasClass("measure")) {
-                theType = "number";
-            }
-            else { //TODO: Handle Date datatype here.
-                theType = "string";
-            }
-            var filter = new Filter(theField, theType);
-            filters[theField] = filter;
-            //add a filter control
-            $("#panelBodyFilters").append("<button id='filter" + theField + "' class='btn btn-xs btn-default " + theType + "'>"
-             + theField + "<span class='glyphicon glyphicon-filter'></span></button>");
-            if (theType=="string") {
-                //
-            }
-            else if (theType=="number") {
-                $(".filterNumeric").modal('show');
-                $(".filterNumeric .rangeSlider").slider({
-                    range: true,
-                    min: 0,
-                    max: 10000,
-                    values: [10,500],
-                    slide: function(event, ui) {
-                        $(".filterNumeric .rangeValue").text(ui.values[0] + " - " + ui.values[1]);
-                    }
-                });
-                var theText = $(".rangeSlider").slider("values",0) + " - " + $(".rangeSlider").slider("values",1);
-                $(".filterNumeric .rangeValue").text(theText);
-                //$(".filterNumeric #txtRange").slider({});
-            }
+                showFilterDialog(control);
             return;
         }
         else if (ev.target.id == "teaser" || ev.target.id=="teaserSmall") {
@@ -232,6 +209,141 @@ function drop(ev) {
     currentMeasures = [];
     currentDimensions = [];
     drawTheChart();
+}
+
+/**
+ * Shows the filter dialog.
+ * 
+ * @param control jQuery control object
+ * */
+function showFilterDialog(control) {
+    //measure dragged into dimension
+    //control.appendTo($(theParent));
+    console.log("showFilterDialog()");
+    var theType = "";
+    var theField = control.text();
+    var isDragdrop = false;
+    var filter = null;
+    if (control.hasClass("measure") || control.hasClass("dimension")) {
+        //case of a drag/drop.
+        isDragdrop = true;
+        if (control.hasClass("measure")) {
+            theType = "number";
+        }
+        else { //TODO: Handle Date datatype here.
+            theType = "string";
+        }
+        if (filters.hasOwnProperty(theField)) {
+            filter = filters[theField];
+            console.log("Filter already exists.");
+        }
+        else {
+            filter = new Filter(theField, theType);
+            filters[theField] = filter;
+            console.log("Filter doesn't exist. Creating new one.");
+        }
+    }
+    else {
+        //case of just changing existing filter.
+        filter = filters[theField];
+        theType = filter.type;
+        isDragdrop = false;
+    }
+    
+    
+    console.log("isDragdrop", isDragdrop);
+    $('#filter' + theField).remove(); //remove old one first
+    //add a filter control
+    if (theType=="string") {
+        $(".filterString .applyButton").click(function() {
+            if ($('#filter' + theField).length>=1) return;
+            console.log("click() .filterString .applyButton");
+            $("#panelBodyFilters").append("<button id='filter" + theField + "' class='filter-button btn btn-xs btn-default " + theType + "'>" + theField + "<span class='glyphicon glyphicon-filter'></span></button>");
+            //console.log($(".filterString").clone().html());
+            $(".filterString").modal('hide');
+            //TODO: save the filter.
+            if ($(".filterString li.general").hasClass("active")) {
+                filter.stringMatcher = "general";
+            }
+            else {
+                filter.stringMatcher = "wildcard";
+            }
+            filter.stringGeneral = [];
+            $(".filterString .stringValue:checked").each(function(){
+                console.log('Saving string value ', $(this).val());
+                filter.stringGeneral.push($(this).val());
+            });
+            filter.stringGeneralExclude = $("#generalExclude").prop("checked");
+            filter.stringWcValue = $("#txtWcValue").val();
+            filter.stringWcType = $("input[name='WcType']").val();
+            filter.stringWcIncludeAll = $("#WcIncludeAll").prop("checked");
+            filter.stringWcExclude = $("#WcExclude").prop("checked");
+            //$("#")
+            //filter.html = $(".filterString").html();
+            //TODO: Process filter and set where/having clause
+        });
+        $(".filterString .closeButton").click(function() {
+            delete filters[theType];
+        });
+        console.log("now pulling values from db");
+        var data = $.extend({}, conn);
+        var sql = "";
+        if (currentTable=="performance_schema.CustomSQL") {
+            sql = "SELECT distinct " + theField + " FROM (" + $("#txtCustomSQL").val().replace(";","") + ") foo"
+        }
+        else {
+            sql = "SELECT distinct " + theField + " FROM " + currentTable 
+        }
+        data.SQL = sql;
+        $.ajax({
+            url: "app.php",
+            method: "POST",
+            data: data,
+            success: function(data) {
+                //SHOW THE DIALOG
+                $(".filterString .modal-title").text("Filter for " + theField);
+                var rows = JSON.parse(data);
+                var htmldata = "";
+                for(var i=0;i<rows.length;i++) {
+                    console.log(rows[i]);
+                    var attr = '';
+                    if (filter.stringGeneral.indexOf(rows[i][0])>-1) {
+                        console.log("loading string value ", rows[i][0]);
+                        attr = 'checked';
+                        //$(".filterString .stringValue[value='" + rows[i][0] + "']").prop("checked",true);
+                    }
+                    htmldata += '<div><label><input class="stringValue" type="checkbox" ' + attr + ' value="' + rows[i][0] +  '">&nbsp;' + rows[i][0]  + '</label></div>';
+                }
+                $(".filterString .stringCheckBoxes").html(htmldata);
+                $("#txtWcValue").val(filter.stringWcValue);
+                $("input[name='WcType']").filter("[value='" + filter.stringWcType  + "']").prop("checked",true);
+                $("#WcIncludeAll").prop("checked", filter.stringWcIncludeAll);
+                $("#WcExclude").prop("checked", filter.stringWcExclude);
+                
+                $(".filterString").modal('show');
+            },
+            complete: function() {
+            }
+        });
+        
+    }
+    else if (theType=="number") {
+        return;
+        //TODO: Implement numeric filter
+        $(".filterNumeric").modal('show');
+        $(".filterNumeric .rangeSlider").slider({
+            range: true,
+            min: 0,
+            max: 10000,
+            values: [10,500],
+            slide: function(event, ui) {
+                $(".filterNumeric .rangeValue").text(ui.values[0] + " - " + ui.values[1]);
+            }
+        });
+        var theText = $(".rangeSlider").slider("values",0) + " - " + $(".rangeSlider").slider("values",1);
+        $(".filterNumeric .rangeValue").text(theText);
+        //$(".filterNumeric #txtRange").slider({});
+    }
 }
 
 function allowDrop(ev) {
@@ -532,7 +644,7 @@ function drawTheChart() {
             sql = "SELECT " + selClause + " FROM (" + $("#txtCustomSQL").val().replace(";","") + ") foo GROUP BY " + groupbyClause;
         }
         else {
-            sql = "SELECT " + selClause + " FROM " + currentTable + " GROUP BY " + groupbyClause;
+            sql = "SELECT " + selClause + " FROM " + currentTable + " " + processFiltersWhere() + " GROUP BY " + groupbyClause;
         }
         console.log(sql);
         $("#panelDimensions .glyphicon-refresh").addClass("spinning");
@@ -585,6 +697,30 @@ function drawTheChart() {
             }
             });        
     });
+}
+
+/**
+ * Process and return the where clause of filters.
+ */
+function processFiltersWhere() {
+    sql = "";
+    for(var i=0;i<filters.length;i++) {
+        var filter = filters[i];
+        if (filter.type=='string') {
+            sql += (sql.length==0?"where ":" and " ) + filter.name;
+            if (filter.stringMatcher=='general') {
+                var vals = "(";
+                for(var j=0;j<filter.General.length;j++) {
+                    vals = 
+                }
+                if (filter.stringGeneralExclude) sql += "not ";
+            }
+            else if (filter.stringMatcher=='wildcard') {
+            }
+        }
+    }
+    console.log("processed filters: ", sql);
+    return sql;
 }
 
 /*
