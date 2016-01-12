@@ -149,11 +149,9 @@ button.btn.btn-danger {
 @-webkit-keyframes spin2 {
     from { -webkit-transform: rotate(0deg); }
     to { -webkit-transform: rotate(360deg); }
-} 
-
-
+}
 </style>
-<div class="container" style="margin-top: 2px;">
+<div class="container" style="margin-top: 2px;"  ondragover="allowDrop(event)"  ondrop="drop(event)" >
     <div class="row">
         <div class="col-md-3">
             <div id="panelTop" >
@@ -207,7 +205,7 @@ button.btn.btn-danger {
               <div class="panel-heading">
                 <h3 class="panel-title">Filters</h3>
               </div>
-              <div id="panelBodyFilters" class="panel-body"  ondragover="allowDrop(event)"  ondrop="drop(event)" >
+              <div id="panelBodyFilters" class="panel-body"  >
               </div>
             </div>
         </div>
@@ -216,14 +214,14 @@ button.btn.btn-danger {
                       <div class="panel-heading"  >
                         <h3 class="panel-title columns"><span class="glyphicon glyphicon-th">&nbsp;</span>Columns</h3>
                       </div>
-                      <div id="panelBodyColumns" class="panel-body" ondragover="allowDrop(event)" ondrop="drop(event)" >
+                      <div id="panelBodyColumns" class="panel-body" >
                       </div>
                     </div>
                     <div id="panelRows"  class=" panel panel-default">
                       <div class="panel-heading"  >
                         <h3 class="panel-title rows"><span class="glyphicon glyphicon-th-list">&nbsp;</span>Rows</h3>
                       </div>
-                      <div id="panelBodyRows" class="panel-body" ondragover="allowDrop(event)" ondrop="drop(event)" >
+                      <div id="panelBodyRows" class="panel-body" >
                       </div>
                     </div>
             <div id="panelChart" class="panel panel-default">

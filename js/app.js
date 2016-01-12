@@ -43,6 +43,10 @@ function init()
         connect();
     }
     handlers();
+    
+    //~ $("#panelBodyColumns").sortable();
+    
+    //$("#panelBodyColumns").disableSelection();
 }
 
 /**
@@ -127,7 +131,14 @@ function getHTMLTeaser() {
 
 function drag(ev) {
     console.log(".drag()",ev.target.id);
-    ev.dataTransfer.setData("text", ev.target.id);
+    var theData;
+    if (ev.target.id=="label") {
+        theData = $(ev.target).attr("iden");
+    }
+    else {
+        theData = ev.target.id;
+    }
+    ev.dataTransfer.setData("text", theData);
 }
 
 function drop(ev) {
@@ -135,8 +146,30 @@ function drop(ev) {
     ev.preventDefault();
     var data = ev.dataTransfer.getData("text");
     console.log(".drop() data, target.id: ", data, ev.target.id);
-    var control = $("#" + data);
-    if (control.hasClass('measure') || control.hasClass('dimension')) {
+    var control;
+    if (data.indexOf("idf_")>-1) {
+        control = $("[iden='" + data + "']");
+    }
+    else {
+        control = $("#" + data);
+    }
+    if (control.attr("id") == 'label') {
+        //a row/column button is dragged outside
+        if (ev.target.id=='label') return;
+        if (control.parent().attr("id").indexOf("genericMenu")==-1) return;
+        if (ev.target.id.indexOf('panelBodyColumns')>-1
+            ||  ev.target.id.indexOf('panelBodyRows')>-1)
+            return;
+        console.log("removing: ", control.attr("id"));
+        var thePanelBody = control.parent().parent();
+        control.parent().remove();
+        if (thePanelBody.find(".dropdown").length==0) {
+            thePanelBody.append(getHTMLTeaser());
+        }
+        //control.remove();
+        return;
+    }
+    else if (control.hasClass('measure') || control.hasClass('dimension')) {
         //One of the measure/dimension buttons on the bottom left
         if ( $(ev.target).attr("id")=="panelBodyFilters" || $(ev.target).parent().attr("id") == "panelBodyFilters" 
             && (control.hasClass("measure") || control.hasClass("dimension")) ) {
@@ -188,9 +221,13 @@ function drop(ev) {
     //theParent.appendChild(document.getElementById(data));
     
     //var theLabel = document.createElement("label");
-    var theField = $("#genericMenu").clone().removeClass("hidden")
-        .attr("id", "genericMenu" + theText)
-        .attr("field", theText);
+    var theField = $("#genericMenu").clone();
+    theField.removeClass("hidden");
+    theField.attr("id", "genericMenu" + theText);
+    theField.attr("field", theText);
+    theField.attr("draggable", true);
+    theField.attr("ondragstart", "drag(event)");
+
     
     //$(theLabel).addClass('btn btn-xs btn-success');
     if (control.hasClass("measure")) {
@@ -202,6 +239,7 @@ function drop(ev) {
         theField.addClass("dimension");
         theField.find("#label").text(control.text());
     }
+    theField.find("#label").attr("iden", "idf_" + (new Date()).getTime());
     theField.find("#label").append('<span class="caret"></span>');
     $(theParent).append(theField);
     $(theParent).find("#teaser").remove();
@@ -332,6 +370,9 @@ function showFilterDialog(control) {
         
     }
     else if (theType=="number") {
+        bspopup({
+            text: "Number and date filters are not implemented yet. Contact the developers to know status."
+        });
         return;
         //TODO: Implement numeric filter
         $(".filterNumeric").modal('show');
@@ -568,13 +609,6 @@ function buildTheTables(options) {
     
     window.tables = tables;
     
-    //attach events to .table-button
-    //~ $(".table-button").each(function(index, obj) {
-        //~ $(this).on("click", {id: $(this).attr("id")}, function(event) {
-        //~ });
-    //~ });
-    
-    //$(".table-button:first").click(); //lets auto click the first table in the box.
     buildTable($(".table-button:first").attr("id").substring(5));
 }
 
