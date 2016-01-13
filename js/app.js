@@ -18,6 +18,7 @@ var lastEnvList = [];
 var filters = {}; //dict for all filters name:Filter.
 var numTypes = ["float", "double", "decimal", "int", "smallint",
     "tinyint", "mediumint", "bigint"];
+var dateTypes = ["datetime", "date"];
 var env = "";
 
 /**
@@ -25,7 +26,7 @@ var env = "";
  * */
 function init()
 {
-    $.get("js/modals.dat", function(data){
+    $.get("js/modals.dat", function(data) {
         $('body').append(data);
         return;
     });
@@ -268,7 +269,11 @@ function showFilterDialog(control) {
         if (control.hasClass("measure")) {
             theType = "number";
         }
-        else { //TODO: Handle Date datatype here.
+        else if(dateTypes.indexOf(tables[currentTable].fields[theField].dataType) >-1 ) { //TODO: Handle Date datatype here.
+            theType = "date";
+            console.log(tables[currentTable].fields[theField].dataType);
+        }
+        else { 
             theType = "string";
         }
         if (filters.hasOwnProperty(theField)) {
@@ -292,6 +297,7 @@ function showFilterDialog(control) {
     
     console.log("isDragdrop", isDragdrop);
     $('#filter' + theField).remove(); //remove old one first
+    
     //add a filter control
     if (theType=="string") {
         $(".filterString .applyButton").unbind("click");
@@ -299,9 +305,7 @@ function showFilterDialog(control) {
             if ($('#filter' + theField).length>=1) return;
             console.log("click() .filterString .applyButton");
             $("#panelBodyFilters").append("<button id='filter" + theField + "' class='filter-button btn btn-xs btn-default " + theType + "'>" + theField + "<span class='glyphicon glyphicon-filter'></span></button>");
-            //console.log($(".filterString").clone().html());
             $(".filterString").modal('hide');
-            //TODO: save the filter.
             if ($(".filterString li.general").hasClass("active")) {
                 filter.stringMatcher = "general";
             }
@@ -320,8 +324,8 @@ function showFilterDialog(control) {
             filter.stringWcExclude = $("#WcExclude").prop("checked");
             drawTheChart();
         });
-        $(".filterString .closeButton").unbind("click");
-        $(".filterString .closeButton").click(function() {
+        $(".filterString .clearButton").unbind("click");
+        $(".filterString .clearButton").click(function() {
             if (!filters.hasOwnProperty(theField)) return;
             console.log("Cleared filter ", theField);
             delete filters[theField];
@@ -342,7 +346,7 @@ function showFilterDialog(control) {
             method: "POST",
             data: data,
             success: function(data) {
-                //SHOW THE DIALOG
+                //SHOW THE STRING-FILTER DIALOG
                 $(".filterString .modal-title").text("Filter for " + theField);
                 var rows = JSON.parse(data);
                 var htmldata = "";
@@ -370,24 +374,140 @@ function showFilterDialog(control) {
         
     }
     else if (theType=="number") {
-        bspopup({
-            text: "Number and date filters are not implemented yet. Contact the developers to know status."
-        });
-        return;
-        //TODO: Implement numeric filter
-        $(".filterNumeric").modal('show');
-        $(".filterNumeric .rangeSlider").slider({
-            range: true,
-            min: 0,
-            max: 10000,
-            values: [10,500],
-            slide: function(event, ui) {
-                $(".filterNumeric .rangeValue").text(ui.values[0] + " - " + ui.values[1]);
+        //SHOW THE NUM-FILTER-TYPE DIALOG FIRST
+        $(".filterNumericType").modal('show');
+        $(".filterNumericType .filterType").unbind('click');
+        $(".filterNumericType .filterType").click(function() {
+            $(".filterNumericType").modal('hide');
+            //alert($(this).text());
+            var oper  = $(this).text().toLocaleLowerCase();
+            if (oper.indexOf("sum")>-1) {
+                oper = "sum";
             }
+            else if (oper.indexOf("distinct count")>-1) {
+                oper = "distinct count";
+            }
+            else if (oper.indexOf("count")>-1) {
+                oper = "count";
+            }
+            else if (oper.indexOf("maximum")>-1) {
+                oper = "max";
+            }
+            else if (oper.indexOf("minimum")>-1) {
+                oper = "min";
+            }
+            else if (oper.indexOf("average")>-1) {
+                oper = "avg";
+            }
+            else if (oper.indexOf("all values")>-1) {
+                oper = "all";
+            }
+            if (oper != "all" && currentDimensions.length == 0) {
+                bspopup("No dimensions are selected. At least one is needed for group-by clause.");
+                return;
+            }
+            //QUERY THE DATABASE FOR MIN-MAX RANGES
+            var clause = (oper=="all"?theField:oper + "(" + theField + ")");
+            if (currentTable=="performance_schema.CustomSQL") {
+                sql = "SELECT distinct " + clause + " FROM (" + $("#txtCustomSQL").val().replace(";","") + ") foo"
+                + (oper=="all"?"":"GROUP BY " + currentDimensions[0])
+                + " ORDER BY " + clause.replace("distinct", "");
+                 
+            }
+            else {
+                sql = "SELECT distinct "  + clause + " FROM " + currentTable + " "
+                + (oper=="all"?"":"GROUP BY " + currentDimensions[0])
+                + " ORDER BY " + clause.replace("distinct", "");
+            }
+            console.log(sql);
+            doTestCustomSQL({
+                silent: true,
+                sql: sql,
+                success: function(data) {
+                    //SHOW THE NUM-FILTER DIALOG
+                    $(".filterNumeric .modal-title").text("Filter for " + theField);
+                    var result = JSON.parse(data);
+                    if (result.length==0) {
+                        bspopup("Zero rows returned.");
+                        return;
+                    }
+                    //data = JSON.parse(data);
+                    window.result = result;
+                    var minValue = Number(result[0][0]);
+                    var maxValue = Number(result[result.length-1][0]);
+                    //RANGE SLIDER
+                    console.log("minValue, maxValue", minValue, maxValue);
+                    $(".filterNumeric .rangeSlider").slider({
+                        range: true, min: minValue, max: maxValue,
+                        values: [minValue, maxValue],
+                        slide: function(event, ui) {
+                            $(".filterNumeric .rangeValue").text(theField + " between " + ui.values[0] + " - " + ui.values[1]);
+                        }
+                    });
+                    //GTE SLIDER
+                    $(".filterNumeric .gteSlider").slider({
+                        range: "min", min: minValue, max: maxValue, value: minValue,
+                        slide: function(event, ui) {
+                            $(".filterNumeric .gteValue").text(theField + " >= " + ui.value);
+                        }
+                    });
+                    $(".filterNumeric .rangeValue").text(theField + " between " + $(".rangeSlider").slider("values",0) + " - " + $(".rangeSlider").slider("values",0));
+                    $(".filterNumeric .gteValue").text(theField + " >= " + $(".rangeSlider").slider("value"));
+                    //LTE SLIDER
+                    $(".filterNumeric .lteSlider").slider({
+                        range: "max", min: minValue, max: maxValue, value: maxValue,
+                        slide: function(event, ui) {
+                            $(".filterNumeric .lteValue").text(theField + " <= " + ui.value);
+                        }
+                    });
+                    $(".filterNumeric .rangeValue").text(theField + " between " + $(".rangeSlider").slider("values",0) + " - " + $(".rangeSlider").slider("values",1));
+                    $(".filterNumeric .gteValue").text(theField + " >= " + $(".gteSlider").slider("value"));
+                    $(".filterNumeric .lteValue").text(theField + " <= " + $(".lteSlider").slider("value"));
+                    //
+                    $(".filterNumeric .applyButton").unbind('click');
+                    $(".filterNumeric .applyButton").click(function() {
+                        if ($('#filter' + theField).length>=1) return;
+                        console.log("click() .filterNumeric .applyButton");
+                        $("#panelBodyFilters").append("<button id='filter" + theField + "' class='filter-button btn btn-xs btn-default " + theType + "'>" + theField + "<span class='glyphicon glyphicon-filter'></span></button>");
+                        $(".filterNumeric").modal('hide');
+                        
+                        filter.numOper = oper;
+                        if ($(".filterNumeric li.range").hasClass("active")) {
+                            filter.numMatcher = "range";
+                            filter.numIncludeNull = $(".filterNumeric #tabRange input[type='checkbox']").prop("checked");
+                            filter.numValues[0] =  $(".rangeSlider").slider("values",0);
+                            filter.numValues[1] =  $(".rangeSlider").slider("values",1);
+                        }
+                        else if ($(".filterNumeric li.gte").hasClass("active")) {
+                            filter.numMatcher = "gte";
+                            filter.numIncludeNull = $(".filterNumeric #tabGTE input[type='checkbox']").prop("checked");
+                            filter.numValues[0] =  $(".gteSlider").slider("value");
+                        }
+                        else if ($(".filterNumeric li.lte").hasClass("active")) {
+                            filter.numMatcher = "lte";
+                            filter.numIncludeNull = $(".filterNumeric #tabLTE input[type='checkbox']").prop("checked");
+                            filter.numValues[0] =  $(".lteSlider").slider("value");
+                        }
+                        drawTheChart();
+                    });
+                    $(".filterNumeric .clearButton").unbind('click');
+                    $(".filterNumeric .clearButton").click(function(){
+                        if (!filters.hasOwnProperty(theField)) return;
+                        console.log("Cleared filter ", theField);
+                        delete filters[theField];
+                        drawTheChart();
+                    });
+                    $(".filterNumeric").modal('show');
+                },
+                error: function(data){
+                    console.log("sql error", data);
+                    alert("Error occured");
+                }
+            });
         });
-        var theText = $(".rangeSlider").slider("values",0) + " - " + $(".rangeSlider").slider("values",1);
-        $(".filterNumeric .rangeValue").text(theText);
-        //$(".filterNumeric #txtRange").slider({});
+    }
+    else if (theType == "date") {
+        //TODO: Implement date filter.
     }
 }
 
@@ -481,9 +601,11 @@ function showTablesDialog(data) {
 }
 
 function doTestCustomSQL(options) {
+    if (options == undefined) options = {};
+    if (options.silent == undefined) options.silent = false;
+    if (options.sql == undefined) options.sql = $("#txtCustomSQL").val();
     var data = $.extend({}, conn);
-    if (options == undefined) options = {silent: false};
-    data.SQL = $("#txtCustomSQL").val();
+    data.SQL = options.sql;
     console.log("SQL", data.SQL);
     $.ajax({
         url: "app.php",
@@ -502,7 +624,7 @@ function doTestCustomSQL(options) {
                 if (!options.silent) {
                     bspopup({text: data});
                 }
-                if (options.error != undefined) options.error();
+                if (options.error != undefined) options.error(data);
             }
         }
     });
@@ -584,23 +706,27 @@ function buildTheTables(options) {
     //data = JSON.parse(data);
     for (var i=0;i<data.length;i++) {
         var row = data[i];
+        var theTable = row.table_schema + "." + row.table_name;
         //console.log(row.table_name + "." + row.column_name);
-        if (!(row.table_name in tables)) {
-            tables[row.table_name] = {};
+        if (!(theTable in tables)) {
+            tables[theTable] = {};
             //var types = ['primary', 'info', 'warning', 'success', 'danger'];
             var types = ['default'];
             var rand = Math.floor(Math.random() * types.length);
             divtables += '<button id=table' + row.table_name +  ' title=' + row.table_name +  ' class="btn btn-xs btn-' + types[rand] +  ' table-button">' +  row.table_name + '</button>';
-            tables[row.table_name]['schema'] = row.table_schema;
-            tables[row.table_name]['dimensions'] = [];
-            tables[row.table_name]['measures'] = [];
+            tables[theTable]['schema'] = row.table_schema;
+            tables[theTable]['dimensions'] = [];
+            tables[theTable]['measures'] = [];
+            tables[theTable]['fields'] = {};
         }
+        var theField = new Field(row.column_name, row.data_type);
+        tables[theTable]['fields'][row.column_name] = theField;
         if (numTypes.indexOf(row.data_type) > -1) {
-            tables[row.table_name]['measures'].push(row.column_name);
+            tables[theTable]['measures'].push(theField);
         }
         else {
             //console.log('non number field found ', row.column_name, row.column_type);
-            tables[row.table_name]['dimensions'].push(row.column_name);
+            tables[theTable]['dimensions'].push(theField);
         }
     }
     
@@ -609,12 +735,14 @@ function buildTheTables(options) {
     
     window.tables = tables;
     
-    buildTable($(".table-button:first").attr("id").substring(5));
+    //buildTable($(".table-button:first").attr("id").substring(5));
+    buildTable(theTable);
 }
 
 function buildTable(tname) {
     //var tname = event.data.id.substring(5);
-    currentTable = tables[tname].schema + "." +  tname;
+    //currentTable = tables[tname].schema + "." +  tname;
+    currentTable = tname;
     currentDimensions = [];
     currentMeasures = [];
     console.log(".click ", tname, tables[tname].measures);
@@ -622,15 +750,15 @@ function buildTable(tname) {
     var divdimensions = "";
     var divmeasures = "";
     for(var i=0;i<tables[tname].measures.length;i++) {
-        console.log("measure:",tables[tname].measures[i]);
-        divmeasures += '<label id="' + tables[tname].measures[i] +  '" draggable="true" ondragstart="drag(event)"  class="btn btn-xs btn-default measure">' + tables[tname].measures[i] + '</label>';
+        console.log("measure:",tables[tname].measures[i].name);
+        divmeasures += '<label id="' + tables[tname].measures[i].name +  '" draggable="true" ondragstart="drag(event)"  class="btn  btn-xs btn-default text-default measure">' + tables[tname].measures[i].name + '</label>';
     }
     if (tables[tname].dimensions.length >0) {
         //currentDimension = tables[tname].dimensions[0];
     }
     for(var i=0;i<tables[tname].dimensions.length;i++) {
-        console.log("dimensions:",tables[tname].dimensions[i]);
-        divdimensions += '<label id="' + tables[tname].dimensions[i] +  '"  draggable="true" ondragstart="drag(event)" class="btn btn-xs btn-default dimension">' + tables[tname].dimensions[i] + '</label>';
+        console.log("dimensions:",tables[tname].dimensions[i].name);
+        divdimensions += '<label id="' + tables[tname].dimensions[i].name +  '"  draggable="true" ondragstart="drag(event)" class="btn btn-xs btn-default dimension">' + tables[tname].dimensions[i].name + '</label>';
     }
     divdimensions += "";
     divmeasures += "";
@@ -682,7 +810,8 @@ function drawTheChart() {
             sql = "SELECT " + selClause + " FROM (" + $("#txtCustomSQL").val().replace(";","") + ") foo GROUP BY " + groupbyClause;
         }
         else {
-            sql = "SELECT " + selClause + " FROM " + currentTable + " " + processFiltersWhere() + " GROUP BY " + groupbyClause;
+            sql = "SELECT " + selClause + " FROM " + currentTable + " " + processFiltersWhere() + " GROUP BY "
+                + groupbyClause + processFiltersHaving();
         }
         console.log(sql);
         $("#panelDimensions .glyphicon-refresh").addClass("spinning");
@@ -738,6 +867,29 @@ function drawTheChart() {
 }
 
 /**
+ * Process and return the having clause of filters.
+ */
+function processFiltersHaving() {
+    sql = "";
+    for(key in filters) {
+        var filter = filters[key];
+        if (filter.type=="number" && filter.numOper != "all") { //other opers will go in having clause
+            sql += (sql.length==0?" having ":" and " ) + filter.numOper.replace("distinct", "") + "(" +  filter.name + ")";
+            if (filter.numMatcher == "range") {
+                sql += " between " + filter.numValues[0] + " and " + filter.numValues[1];
+            }
+            else if (filter.numMatcher == "gte") {
+                sql += " >= " + filter.numValues[0];
+            }
+            else if (filter.numMatcher == "lte") {
+                sql += " <= " + filter.numValues[0];
+            }
+        }
+    }
+    return sql;
+}
+
+/**
  * Process and return the where clause of filters.
  */
 function processFiltersWhere() {
@@ -774,6 +926,18 @@ function processFiltersWhere() {
                         sql += (filter.stringWcExclude ? " not like " : " like ") + "'" + filter.stringWcValue + "'";
                     }
                 }
+            }
+        }
+        else if (filter.type=="number" && filter.numOper == "all") { //other opers will go in having clause
+            sql += (sql.length==0?" where ":" and " ) + filter.name;
+            if (filter.numMatcher == "range") {
+                sql += " between " + filter.numValues[0] + " and " + filter.numValues[1];
+            }
+            else if (filter.numMatcher == "gte") {
+                sql += " >= " + filter.numValues[0];
+            }
+            else if (filter.numMatcher == "lte") {
+                sql += " <= " + filter.numValues[0];
             }
         }
     }

@@ -1,29 +1,35 @@
-<div class="modal fade filterNumeric" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
+<style>
+.filterNumericType .btn-group-vertical {
+    width: 100%;!important
+}
+    
+.filterNumericType .filterType.btn,
+.filterNumericType .filterType.btn.btn-default,
+.filterNumericType .filterType.btn.btn-success,
+.filterNumericType .filterType.btn.btn-primary,
+.filterNumericType .filterType.btn.btn-info,
+.filterNumericType .filterType.btn.btn-warning,
+.filterNumericType .filterType.btn.btn-danger 
+ {
+    max-width: none; !important
+}
+</style>
+<div class="modal fade filterNumericType"  data-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+ <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-        <h4 class="modal-title">Filter Numbers</h4>
+        <h4 class="modal-title">How do you want to Filter this field?</h4>
       </div>
       <div class="modal-body" style="">
-            <!-- Nav tabs -->
-            <ul class="nav nav-tabs" role="tablist">
-                <li role="presentation" class="active"><a href="#tabRange" role="tab" data-toggle="tab">Range</a></li>
-                <li role="presentation"><a href="#tabGTE" role="tab" data-toggle="tab">At Least</a></li>
-                <li role="presentation"><a href="#tabLTE" role="tab" data-toggle="tab">At Most</a></li>
-                <li role="presentation"><a href="#tabSpecial" role="tab" data-toggle="tab">Special</a></li>
-            </ul>
-            <!-- Tab panes -->
-            <div class="tab-content">
-                <div role="tabpanel" class="tab-pane active" id="tabRange">
-                    <div class="panel-body">
-                        <label class="mark rangeValue"></label>
-                        <div class="rangeSlider"></div>
-                    </div>
-                </div>
-                <div role="tabpanel" class="tab-pane" id="tabGTE"></div>
-                <div role="tabpanel" class="tab-pane" id="tabLTE"></div>
-                <div role="tabpanel" class="tab-pane" id="tabSpecial"></div>
+            <div class="btn-group-vertical">
+                <button class="filterType btn btn-lg btn-default"># All Values</button>
+                <button class="filterType btn btn-lg btn-default"># Sum</button>
+                <button class="filterType btn btn-lg btn-default"># Average</button>
+                <button class="filterType btn btn-lg btn-default"># Count</button>
+                <button class="filterType btn btn-lg btn-default"># Distinct Count</button>
+                <button class="filterType btn btn-lg btn-default"># Maximum</button>
+                <button class="filterType btn btn-lg btn-default"># Minimum</button>
             </div>
       </div>
       <div class="modal-footer">
@@ -33,8 +39,64 @@
   </div>
 </div>
 
+<div class="modal fade filterNumeric" data-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+        <h4 class="modal-title">Filter Numbers</h4>
+      </div>
+      <div class="modal-body" style="">
+            <!-- Nav tabs -->
+            <ul class="nav nav-tabs" role="tablist">
+                <li role="presentation" class="range active"><a href="#tabRange" role="tab" data-toggle="tab">Range</a></li>
+                <li role="presentation" class="gte"><a href="#tabGTE" role="tab" data-toggle="tab">At Least</a></li>
+                <li role="presentation" class="lte"><a href="#tabLTE" role="tab" data-toggle="tab">At Most</a></li>
+                <li class="hidden" role="presentation"><a href="#tabSpecial" role="tab" data-toggle="tab">Special</a></li>
+            </ul>
+            <!-- Tab panes -->
+            <div class="tab-content">
+                <div role="tabpanel" class="tab-pane active" id="tabRange">
+                    <div class="panel-body">
+                        <label class="mark rangeValue"></label>
+                        <div class="rangeSlider"></div>
+                        <div><br>
+                        <label><input type="checkbox">&nbsp;Include Null Values</label>
+                        </div>
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane" id="tabGTE">
+                    <div class="panel-body">
+                        <label class="mark gteValue"></label>
+                        <div class="gteSlider"></div>
+                        <div><br>
+                        <label><input type="checkbox">&nbsp;Include Null Values</label>
+                        </div>
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane" id="tabLTE">
+                    <div class="panel-body">
+                        <label class="mark lteValue"></label>
+                        <div class="lteSlider"></div>
+                        <div><br>
+                        <label><input type="checkbox">&nbsp;Include Null Values</label>
+                        </div>
+                    </div>
+                </div>
+                <div role="tabpanel" class="hidden tab-pane" id="tabSpecial">
+                </div>
+            </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default applyButton">Apply</button>
+        <button type="button" class="btn btn-default clearButton" data-dismiss="modal">Clear</button>
+      </div>
+    </div>
+  </div>
+</div>
 
-<div class="modal fade filterString" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+
+<div class="modal fade filterString" data-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
@@ -96,7 +158,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default btn-primary applyButton" >Apply</button>
-        <button type="button" class="btn btn-default closeButton" data-dismiss="modal">Clear</button>
+        <button type="button" class="btn btn-default clearButton" data-dismiss="modal">Clear</button>
       </div>
     </div>
   </div>

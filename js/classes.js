@@ -5,7 +5,7 @@
  * */
 
 /**
- * Constructor for the Filter object
+ * Constructor for the Filter object.
  * 
  * @param name Name of the field.
  * @param type Type of filter - number/string/date.
@@ -23,7 +23,24 @@ function Filter(name, type) {
     this.stringWcType = ""; //contains or startswith or endswith or equals
     this.stringWcExclude = false;
     
+    this.numOper = "all"; //all, sum, count, distinct count.
+    this.numMatcher = "range"; //range, gte, lte.
+    this.numValues = [];//0th element in case of lte/gte.
+    this.numIncludeNull = false; //include null values.
+    
     this.condition = ""; //where/having
     this.clause = ""; //x=1
+    return this;
+}
+
+/**
+ * Constructor for the Field object.
+ * 
+ * @param name Name of the field.
+ * @param dataType Data type of the field.
+ * */
+function Field(name, dataType) {
+    this.name = name;
+    this.dataType = dataType;
     return this;
 }
