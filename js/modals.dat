@@ -1,24 +1,157 @@
 <style>
-.filterNumericType .btn-group-vertical {
-    width: 100%;!important
-}
+.filterDate .panel-body {
+    min-height: 110px;
+    text-align: center;
+}    
     
-.filterNumericType .filterType.btn,
-.filterNumericType .filterType.btn.btn-default,
-.filterNumericType .filterType.btn.btn-success,
-.filterNumericType .filterType.btn.btn-primary,
-.filterNumericType .filterType.btn.btn-info,
-.filterNumericType .filterType.btn.btn-warning,
-.filterNumericType .filterType.btn.btn-danger 
+.filterNumericType .btn-group-vertical,
+.filterDateType .btn-group-vertical
  {
-    max-width: none; !important
+    width: 100% !important;
+}
+
+.filterNumericType hr,
+.filterDateType hr
+ {
+    margin: 2px 2px;
+}
+
+    
+.filterType.btn,
+.filterType.btn.btn-default,
+.filterType.btn.btn-success,
+.filterType.btn.btn-primary,
+.filterType.btn.btn-info,
+.filterType.btn.btn-warning,
+.filterType.btn.btn-danger 
+ {
+    max-width: none !important;
+    text-align: left !important;
 }
 </style>
-<div class="modal fade filterNumericType"  data-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+
+<div class="modal fade filterDateType" data-backdrop="static"   data-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
  <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+        <h4 class="modal-title">How do you want to Filter this field?</h4>
+      </div>
+      <div class="modal-body" style="">
+            <div class="btn-group-vertical">
+                <button class="filterType btn btn-xs btn-default"># Relative date</button>
+                <button class="filterType btn btn-xs btn-default"># Range of dates</button>
+                <hr>
+                <button class="filterType btn btn-xs btn-default"># Years</button>
+                <button class="filterType btn btn-xs btn-default"># Quarters</button>
+                <button class="filterType btn btn-xs btn-default"># Months</button>
+                <button class="filterType btn btn-xs btn-default"># Days</button>
+<!--
+                <button class="filterType btn btn-xs btn-default"># Hours</button>
+                <button class="filterType btn btn-xs btn-default"># Minutes</button>
+                <button class="filterType btn btn-xs btn-default"># Seconds</button>
+                <button class="filterType btn btn-xs btn-default"># Week Numbers</button>
+                <button class="filterType btn btn-xs btn-default"># Weekdays</button>
+-->
+                <hr>
+<!--
+                <button class="filterType btn btn-xs btn-default"># Count</button>
+                <button class="filterType btn btn-xs btn-default"># Distinct Count</button>
+                <button class="filterType btn btn-xs btn-default"># Maximum</button>
+                <button class="filterType btn btn-xs btn-default"># Minimum</button>
+                <hr>
+-->
+                <button class="filterType btn btn-xs btn-primary"># Clear Filter</button>
+            </div>
+      </div>
+      <div class="modal-footer">
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade filterDate" data-backdrop="static"  data-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Filter Date</h4>
+      </div>
+      <div class="modal-body" style="">
+            <!-- Nav tabs -->
+            <ul class="nav nav-tabs" role="tablist">
+                <li role="presentation" class="relative active"><a href="#tabDateRelative" role="tab" data-toggle="tab">Relative</a></li>
+                <li role="presentation" class="range"><a href="#tabDateRange" role="tab" data-toggle="tab">Range</a></li>
+                <li role="presentation" class="gte"><a href="#tabDateGTE" role="tab" data-toggle="tab">Starting Date</a></li>
+                <li role="presentation" class="lte"><a href="#tabDateLTE" role="tab" data-toggle="tab">Ending Date</a></li>
+            </ul>
+            <!-- Tab panes -->
+            <div class="tab-content">
+                <div role="tabpanel" class="tab-pane tabrelative active" id="tabDateRelative">
+                    <div class="panel-body">
+                        <div style="text-align: center;">
+                            <div >
+                                <button class="dateButton days-button btn btn-default">Days</button>
+                                <button class="dateButton years-button btn btn-default">Years</button>
+                                <button class="dateButton quarters-button btn btn-default">Quarters</button>
+                                <button class="dateButton months-button btn btn-default">Months</button>
+                                <button class="dateButton weeks-button btn btn-default">Weeks</button>
+                            </div>
+                            <br>
+                            <div>
+                                <div style="display: inline-block;text-align: left;">
+                                    <div class='h4'><input type="radio" checked="true" name="relValue" value="previous">&nbsp;<label class='small' id="lblPrevious">Yesterday</label></div>
+                                    <div class='h4'><input type="radio" name="relValue" value="current">&nbsp;<label class='small' id="lblCurrent">Today</label></div>
+                                    <div class='h4'><input type="radio" name="relValue" value="next">&nbsp;<label class='small' id="lblNext">Tomorrow</label></div>
+                                </div>
+                                <div style="display: inline-block;text-align: left;">
+                                    <div class='h4'><input type="radio" name="relValue" value="lastn">&nbsp;<label class='small'>Last</label> <input id="txtLastn" type="number" disabled >&nbsp;<label class='small' id="lblLastn">Days</label></div>
+                                    <div class='h4'><input type="radio" name="relValue" value="nextn">&nbsp;<label class='small' >Next</label> <input id="txtNextn"  type="number" disabled  >&nbsp;<label class='small' id="lblNextn">Days</label></div>
+                                </div>
+                            </div>
+                        <div><br>
+                        <label><input class="includeNull" type="checkbox">&nbsp;Include Null Values</label>
+                        </div>
+                        </div>
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane tabrange" id="tabDateRange">
+                    <div class="panel-body">
+                        <h4><label class='small'>From: </label><input class="form-control" id="fromdate" placeholder="Click to select"></h4>
+                        <div class="h4"><label class='small'>To: </label><input class="form-control" id="todate" placeholder="Click to select"></div>
+                        <div><br>
+                        <label><input class="includeNull" type="checkbox">&nbsp;Include Null Values</label>
+                        </div>
+                     </div>
+                </div>
+                <div role="tabpanel" class="tab-pane tabgte" id="tabDateGTE">
+                    <div class="panel-body">
+                        <div class='h4'><small>Starting Date:</small><input class="form-control"  id="gtedate" placeholder="Click to select"></div>
+                        <div><br>
+                        <label><input class="includeNull" type="checkbox">&nbsp;Include Null Values</label>
+                        </div>
+                    </div>
+                </div>
+                <div role="tabpanel" class="tab-pane tablte" id="tabDateLTE">
+                    <div class="panel-body">
+                        <div class='h4'><small>Ending Date:</small><input class="form-control"  id="ltedate" placeholder="Click to select"></div>
+                        <div><br>
+                        <label><input class="includeNull" type="checkbox">&nbsp;Include Null Values</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary applyButton">Apply</button>
+        <button type="button" class="btn btn-default clearButton" data-dismiss="modal">Clear</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade filterNumericType" data-backdrop="static"   data-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+ <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
         <h4 class="modal-title">How do you want to Filter this field?</h4>
       </div>
       <div class="modal-body" style="">
@@ -30,20 +163,19 @@
                 <button class="filterType btn btn-lg btn-default"># Distinct Count</button>
                 <button class="filterType btn btn-lg btn-default"># Maximum</button>
                 <button class="filterType btn btn-lg btn-default"># Minimum</button>
+                <button class="filterType btn btn-lg btn-primary"># Clear Filter</button>
             </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
       </div>
     </div>
   </div>
 </div>
 
-<div class="modal fade filterNumeric" data-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+<div class="modal fade filterNumeric" data-backdrop="static"  data-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
         <h4 class="modal-title">Filter Numbers</h4>
       </div>
       <div class="modal-body" style="">
@@ -88,7 +220,7 @@
             </div>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-default applyButton">Apply</button>
+        <button type="button" class="btn btn-primary applyButton">Apply</button>
         <button type="button" class="btn btn-default clearButton" data-dismiss="modal">Clear</button>
       </div>
     </div>
@@ -96,7 +228,7 @@
 </div>
 
 
-<div class="modal fade filterString" data-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+<div class="modal fade filterString" data-backdrop="static"  data-keyboard="false" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">

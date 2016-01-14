@@ -22,14 +22,19 @@ function Filter(name, type) {
     this.stringWcIncludeAll = true; //whether to include all values if value is empty
     this.stringWcType = ""; //contains or startswith or endswith or equals
     this.stringWcExclude = false;
-    
+
     this.numOper = "all"; //all, sum, count, distinct count.
     this.numMatcher = "range"; //range, gte, lte.
-    this.numValues = [];//0th element in case of lte/gte.
+    this.numValues = [];//only 0th element, except in case of range.
     this.numIncludeNull = false; //include null values.
-    
-    this.condition = ""; //where/having
-    this.clause = ""; //x=1
+
+    this.dateMatcher = "relative"; //relative, range, gte, lte.
+    this.dateRelativeType = "days"; //days, weeks, months, quarters, years.
+    this.dateValues = []; //only 0th element, except in case of range.
+    this.dateIncludeNull = false; //include null values.
+
+    //this.condition = ""; //where, having
+    //this.clause = ""; //x=1
     return this;
 }
 

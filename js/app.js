@@ -21,6 +21,9 @@ var numTypes = ["float", "double", "decimal", "int", "smallint",
 var dateTypes = ["datetime", "date"];
 var env = "";
 
+//TODO: Remove all unncessary comments.
+//TODO: Remove all unncessary console.log statements.
+
 /**
  * To be called when used with index.html once its loaded.
  * */
@@ -29,6 +32,11 @@ function init()
     $.get("js/modals.dat", function(data) {
         $('body').append(data);
         return;
+    });
+    
+    //JQUERY-UI DEFAULTS
+    $.datepicker.setDefaults({
+        dateFormat: 'yy-mm-dd'
     });
     
     clearChart();
@@ -269,11 +277,11 @@ function showFilterDialog(control) {
         if (control.hasClass("measure")) {
             theType = "number";
         }
-        else if(dateTypes.indexOf(tables[currentTable].fields[theField].dataType) >-1 ) { //TODO: Handle Date datatype here.
+        else if(dateTypes.indexOf(tables[currentTable].fields[theField].dataType) >-1 ) {
             theType = "date";
             console.log(tables[currentTable].fields[theField].dataType);
         }
-        else { 
+        else {
             theType = "string";
         }
         if (filters.hasOwnProperty(theField)) {
@@ -293,8 +301,7 @@ function showFilterDialog(control) {
         theType = filter.type;
         isDragdrop = false;
     }
-    
-    
+
     console.log("isDragdrop", isDragdrop);
     $('#filter' + theField).remove(); //remove old one first
     
@@ -327,7 +334,6 @@ function showFilterDialog(control) {
         $(".filterString .clearButton").unbind("click");
         $(".filterString .clearButton").click(function() {
             if (!filters.hasOwnProperty(theField)) return;
-            console.log("Cleared filter ", theField);
             delete filters[theField];
             drawTheChart();
         });
@@ -365,6 +371,7 @@ function showFilterDialog(control) {
                 $("input[name='WcType']").filter("[value='" + filter.stringWcType  + "']").prop("checked",true);
                 $("#WcIncludeAll").prop("checked", filter.stringWcIncludeAll);
                 $("#WcExclude").prop("checked", filter.stringWcExclude);
+                $(".filterString .nav-tabs li." + filter.stringMatcher + " a").tab('show');
                 
                 $(".filterString").modal('show');
             },
@@ -380,8 +387,12 @@ function showFilterDialog(control) {
         $(".filterNumericType .filterType").click(function() {
             $(".filterNumericType").modal('hide');
             //alert($(this).text());
-            var oper  = $(this).text().toLocaleLowerCase();
-            if (oper.indexOf("sum")>-1) {
+            var oper  = $(this).text().toLowerCase();
+            if (oper.indexOf("clear filter")>-1) {
+                delete filters[theField];
+                return;
+            }
+            else if (oper.indexOf("sum")>-1) {
                 oper = "sum";
             }
             else if (oper.indexOf("distinct count")>-1) {
@@ -404,6 +415,7 @@ function showFilterDialog(control) {
             }
             if (oper != "all" && currentDimensions.length == 0) {
                 bspopup("No dimensions are selected. At least one is needed for group-by clause.");
+                delete filters[theField];
                 return;
             }
             //QUERY THE DATABASE FOR MIN-MAX RANGES
@@ -435,39 +447,45 @@ function showFilterDialog(control) {
                     window.result = result;
                     var minValue = Number(result[0][0]);
                     var maxValue = Number(result[result.length-1][0]);
+                    var theOperLabel = "";
+                    if (oper=="all") {
+                        theOperLabel = theField;
+                    }
+                    else {
+                        theOperLabel = oper + "(" + theField + ")";
+                    }
                     //RANGE SLIDER
                     console.log("minValue, maxValue", minValue, maxValue);
+                    console.log("now creating range slider.");
                     $(".filterNumeric .rangeSlider").slider({
                         range: true, min: minValue, max: maxValue,
                         values: [minValue, maxValue],
                         slide: function(event, ui) {
-                            $(".filterNumeric .rangeValue").text(theField + " between " + ui.values[0] + " - " + ui.values[1]);
+                            $(".filterNumeric .rangeValue").text(theOperLabel + " between " + ui.values[0] + " - " + ui.values[1]);
                         }
                     });
                     //GTE SLIDER
                     $(".filterNumeric .gteSlider").slider({
                         range: "min", min: minValue, max: maxValue, value: minValue,
                         slide: function(event, ui) {
-                            $(".filterNumeric .gteValue").text(theField + " >= " + ui.value);
+                            $(".filterNumeric .gteValue").text(theOperLabel + " >= " + ui.value);
                         }
                     });
-                    $(".filterNumeric .rangeValue").text(theField + " between " + $(".rangeSlider").slider("values",0) + " - " + $(".rangeSlider").slider("values",0));
-                    $(".filterNumeric .gteValue").text(theField + " >= " + $(".rangeSlider").slider("value"));
                     //LTE SLIDER
                     $(".filterNumeric .lteSlider").slider({
                         range: "max", min: minValue, max: maxValue, value: maxValue,
                         slide: function(event, ui) {
-                            $(".filterNumeric .lteValue").text(theField + " <= " + ui.value);
+                            $(".filterNumeric .lteValue").text(theOperLabel + " <= " + ui.value);
                         }
                     });
-                    $(".filterNumeric .rangeValue").text(theField + " between " + $(".rangeSlider").slider("values",0) + " - " + $(".rangeSlider").slider("values",1));
-                    $(".filterNumeric .gteValue").text(theField + " >= " + $(".gteSlider").slider("value"));
-                    $(".filterNumeric .lteValue").text(theField + " <= " + $(".lteSlider").slider("value"));
-                    //
+                    //DEFAULT LABELLING
+                    $(".filterNumeric .rangeValue").text(theOperLabel + " between " + $(".rangeSlider").slider("values",0) + " - " + $(".rangeSlider").slider("values",1));
+                    $(".filterNumeric .gteValue").text(theOperLabel + " >= " + $(".gteSlider").slider("value"));
+                    $(".filterNumeric .lteValue").text(theOperLabel + " <= " + $(".lteSlider").slider("value"));
+                    //EVENTS
                     $(".filterNumeric .applyButton").unbind('click');
                     $(".filterNumeric .applyButton").click(function() {
                         if ($('#filter' + theField).length>=1) return;
-                        console.log("click() .filterNumeric .applyButton");
                         $("#panelBodyFilters").append("<button id='filter" + theField + "' class='filter-button btn btn-xs btn-default " + theType + "'>" + theField + "<span class='glyphicon glyphicon-filter'></span></button>");
                         $(".filterNumeric").modal('hide');
                         
@@ -491,12 +509,13 @@ function showFilterDialog(control) {
                         drawTheChart();
                     });
                     $(".filterNumeric .clearButton").unbind('click');
-                    $(".filterNumeric .clearButton").click(function(){
+                    $(".filterNumeric .clearButton").click(function() {
                         if (!filters.hasOwnProperty(theField)) return;
                         console.log("Cleared filter ", theField);
                         delete filters[theField];
                         drawTheChart();
                     });
+                    //SHOW
                     $(".filterNumeric").modal('show');
                 },
                 error: function(data){
@@ -507,7 +526,131 @@ function showFilterDialog(control) {
         });
     }
     else if (theType == "date") {
-        //TODO: Implement date filter.
+        //SHOW DATE-FILTER-TYPE DIALOG FIRST
+        $(".filterDateType").modal('show');
+        $(".filterDateType .filterType").unbind("click");
+        $(".filterDateType .filterType").click(function(){
+            $(".filterDateType").modal('hide');
+            //SET FILTER TYPE
+            var clickLater = []; //array of controls to be clicked later
+            var oper  = $(this).text().toLowerCase();
+            if (oper.indexOf("clear filter")>-1) {
+                delete filters[theField];
+                drawTheChart();
+                return;
+            }
+            else if (oper.indexOf("relative date")>-1) {
+                $(".filterDate .nav-tabs li.relative a").tab('show');
+            }
+            else if (oper.indexOf("# years")>-1) {
+                $(".filterDate .nav-tabs li.relative a").tab('show');
+                clickLater.push(".filterDate .tabrelative .years-button");
+            }
+            else if (oper.indexOf("# quarters")>-1) {
+                $(".filterDate .nav-tabs li.relative a").tab('show');
+                clickLater.push(".filterDate .tabrelative .quarters-button");
+            }
+            else if (oper.indexOf("# months")>-1) {
+                $(".filterDate .nav-tabs li.relative a").tab('show');
+                clickLater.push(".filterDate .tabrelative .months-button");
+            }
+            else if (oper.indexOf("range of dates")>-1){
+                $(".filterDate .nav-tabs li.range a").tab('show');
+            }
+            //UI INIT
+            $(".filterDate #fromdate").datepicker();
+            $(".filterDate #todate").datepicker();
+            $(".filterDate #gtedate").datepicker();
+            $(".filterDate #ltedate").datepicker();
+            //EVENTS
+            $(".filterDate .clearButton").unbind('click');
+            $(".filterDate .clearButton").click(function(){
+                delete filters[theField];
+                drawTheChart();
+            });
+                
+            $(".filterDate .applyButton").unbind('click');
+            $(".filterDate .applyButton").click(function(){
+                $("#panelBodyFilters").append("<button id='filter" + theField + "' class='filter-button btn btn-xs btn-default " + theType + "'>" + theField + "<span class='glyphicon glyphicon-filter'></span></button>");
+                $(".filterDate").modal('hide');
+                if ($(".filterDate li.relative").hasClass("active")) {
+                    filter.dateMatcher = "relative";
+                    filter.dateRelativeType = $(".filterDate #lblNextn").text().toLowerCase();
+                    var t = $(".filterDate input[name='relValue']:checked").val();
+                    if (t == 'current') {
+                        filter.dateValues[0] = 0;
+                    }
+                    else if (t == 'previous') {
+                        filter.dateValues[0] = -1;
+                    }
+                    else if (t == 'next') {
+                        filter.dateValues[0] = 1;
+                    }
+                    else if (t == 'lastn') {
+                        filter.dateValues[0] = -1 * Number($("#txtLastn" ).val());
+                    }
+                    else if (t == 'nextn') {
+                        filter.dateValues[0] = Number($("#txtNextn" ).val());
+                    }
+                }
+                else if ($(".filterDate li.range").hasClass("active")) {
+                    filter.dateMatcher = "range";
+                    filter.dateValues[0] = $(".filterDate #fromdate").val();
+                    filter.dateValues[1] = $(".filterDate #todate").val();
+                }
+                else if ($(".filterDate li.gte").hasClass("active")) {
+                    filter.dateMatcher = "gte";
+                    filter.dateValues[0] = $(".filterDate #gtedate").val();
+                }
+                else if ($(".filterDate li.lte").hasClass("active")) {
+                    filter.dateMatcher = "lte";
+                    filter.dateValues[0] = $(".filterDate #ltedate").val();
+                }
+                filter.dateIncludeNull = $(".filterDate .tab" + filter.dateMatcher + " .includeNull").prop('checked');
+                drawTheChart();
+            });
+            
+            $(".filterDate .dateButton").unbind('click');
+            $(".filterDate .dateButton").click(function(){
+                var theText = $(this).text();
+                $(".filterDate #lblLastn").text(theText);
+                $(".filterDate #lblNextn").text(theText);
+                if (theText == "Days") {
+                    $(".filterDate #lblCurrent").text("Today");
+                    $(".filterDate #lblNext").text("Tomorrow");
+                    $(".filterDate #lblPrevious").text("Yesterday");
+                }
+                else {
+                    $(".filterDate #lblCurrent").text("Current " + theText.slice(0, -1));
+                    $(".filterDate #lblNext").text("Next " + theText.slice(0, -1));
+                    $(".filterDate #lblPrevious").text("Previous " + theText.slice(0, -1));
+                }
+            });
+            
+            $(".filterDate input[name='relValue']").unbind('click'); //radio buttons
+            $(".filterDate input[name='relValue']").click(function(){
+                var theVal = $(this).val();
+                $("#tabDateRelative input[type='number']").attr("disabled", "");
+                if (theVal == "lastn" || theVal == "nextn") {
+                    $(this).parent().find("input[type='number']").attr("disabled", null);
+                    if ($(this).parent().find("input[type='number']").val() == ""){
+                        $(this).parent().find("input[type='number']").val("1");
+                    }
+                }
+            });
+            //SET DEFAULT VALUES
+            $(".filterDate #lblLastn").text("Days");
+            $(".filterDate #lblNextn").text("Days");
+            $(".filterDate #lblPrevious").text("Yesterday");
+            $(".filterDate #lblNext").text("Tomorrow");
+            $(".filterDate #lblCurrent").text("Today");
+            //PENDING ACTIONS
+            for(var i=0;i<clickLater.length;i++) {
+                $(clickLater[i]).click();
+            }
+            //SHOW
+            $(".filterDate").modal('show');
+        });
     }
 }
 
@@ -875,6 +1018,7 @@ function processFiltersHaving() {
         var filter = filters[key];
         if (filter.type=="number" && filter.numOper != "all") { //other opers will go in having clause
             sql += (sql.length==0?" having ":" and " ) + filter.numOper.replace("distinct", "") + "(" +  filter.name + ")";
+            //TODO: Handle numIncludeNull here.
             if (filter.numMatcher == "range") {
                 sql += " between " + filter.numValues[0] + " and " + filter.numValues[1];
             }
@@ -928,8 +1072,9 @@ function processFiltersWhere() {
                 }
             }
         }
-        else if (filter.type=="number" && filter.numOper == "all") { //other opers will go in having clause
-            sql += (sql.length==0?" where ":" and " ) + filter.name;
+        else if (filter.type == "number" && filter.numOper == "all") { //other opers will go in having clause
+            //TODO: Handle numIncludeNull here.
+            sql += (sql.length==0?" where ":" and ") + filter.name;
             if (filter.numMatcher == "range") {
                 sql += " between " + filter.numValues[0] + " and " + filter.numValues[1];
             }
@@ -938,6 +1083,31 @@ function processFiltersWhere() {
             }
             else if (filter.numMatcher == "lte") {
                 sql += " <= " + filter.numValues[0];
+            }
+        }
+        else if (filter.type == "date") {
+            //TODO: Handle dateIncludeNull here.
+            sql += (sql.length==0?" where ":" and ") + filter.name;
+            if (filter.dateMatcher == "relative") {
+                var reltype = filter.dateRelativeType.slice(0,-1);
+                if (filter.dateValues[0] < 0) { //past date
+                    sql += " between date_add(curdate(), interval " + filter.dateValues[0] +  " " + filter.dateRelativeType.slice(0,-1) + ") and curdate()";
+                }
+                else if (filter.dateValues[0] > 0) { //future date
+                    sql += " between curdate() and date_add(curdate(), interval " + filter.dateValues[0] +  " " + reltype + ")";
+                }
+                else { //current day/month/year/etc.
+                    sql += " like '%' and " + reltype + "(" + filter.name + ") = " + reltype +  "(curdate())";
+                }
+            }
+            if (filter.dateMatcher == "range") {
+                sql += " between '" + filter.dateValues[0] + "' and '" + filter.dateValues[1] + "'";
+            }
+            else if (filter.dateMatcher == "gte") {
+                sql += " >= '" + filter.dateValues[0] + "'";
+            }
+            else if (filter.dateMatcher == "lte") {
+                sql += " <= '" + filter.dateValues[0] + "'";
             }
         }
     }
