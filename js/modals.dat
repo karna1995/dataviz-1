@@ -38,29 +38,29 @@
       </div>
       <div class="modal-body" style="">
             <div class="btn-group-vertical">
-                <button class="filterType btn btn-xs btn-default"># Relative date</button>
-                <button class="filterType btn btn-xs btn-default"># Range of dates</button>
+                <button class="filterType btn btn-lg btn-default"># Relative date</button>
+                <button class="filterType btn btn-lg btn-default"># Range of dates</button>
                 <hr>
-                <button class="filterType btn btn-xs btn-default"># Years</button>
-                <button class="filterType btn btn-xs btn-default"># Quarters</button>
-                <button class="filterType btn btn-xs btn-default"># Months</button>
-                <button class="filterType btn btn-xs btn-default"># Days</button>
+                <button class="filterType btn btn-lg btn-default"># Years</button>
+                <button class="filterType btn btn-lg btn-default"># Quarters</button>
+                <button class="filterType btn btn-lg btn-default"># Months</button>
+                <button class="filterType btn btn-lg btn-default"># Days</button>
 <!--
-                <button class="filterType btn btn-xs btn-default"># Hours</button>
-                <button class="filterType btn btn-xs btn-default"># Minutes</button>
-                <button class="filterType btn btn-xs btn-default"># Seconds</button>
-                <button class="filterType btn btn-xs btn-default"># Week Numbers</button>
-                <button class="filterType btn btn-xs btn-default"># Weekdays</button>
+                <button class="filterType btn btn-lg btn-default"># Hours</button>
+                <button class="filterType btn btn-lg btn-default"># Minutes</button>
+                <button class="filterType btn btn-lg btn-default"># Seconds</button>
+                <button class="filterType btn btn-lg btn-default"># Week Numbers</button>
+                <button class="filterType btn btn-lg btn-default"># Weekdays</button>
 -->
                 <hr>
 <!--
-                <button class="filterType btn btn-xs btn-default"># Count</button>
-                <button class="filterType btn btn-xs btn-default"># Distinct Count</button>
-                <button class="filterType btn btn-xs btn-default"># Maximum</button>
-                <button class="filterType btn btn-xs btn-default"># Minimum</button>
+                <button class="filterType btn btn-lg btn-default"># Count</button>
+                <button class="filterType btn btn-lg btn-default"># Distinct Count</button>
+                <button class="filterType btn btn-lg btn-default"># Maximum</button>
+                <button class="filterType btn btn-lg btn-default"># Minimum</button>
                 <hr>
 -->
-                <button class="filterType btn btn-xs btn-primary"># Clear Filter</button>
+                <button class="filterType btn btn-lg btn-primary"># Clear Filter</button>
             </div>
       </div>
       <div class="modal-footer">
