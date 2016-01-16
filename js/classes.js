@@ -27,6 +27,7 @@ function Filter(name, type) {
     this.numMatcher = "range"; //range, gte, lte.
     this.numValues = [];//only 0th element, except in case of range.
     this.numIncludeNull = false; //include null values.
+    this.numIsDistinct = false; //whether to prefix field with distinct clause in group queries.
 
     this.dateMatcher = "relative"; //relative, range, gte, lte.
     this.dateRelativeType = "days"; //days, weeks, months, quarters, years.

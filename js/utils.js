@@ -1,12 +1,51 @@
 /**
  * A bunch of basic javascript utilities and helper functions.
+ * Depends on jQuery, Bootstrap.
  * 
  * @author Prahlad Yeri (prahladyeri@yahoo.com)
  * */
+ 
+/**
+ * Validates a date as per European format (yyyy-mm-dd).
+ * 
+ * @return Empty string if valid, error message otherwise.
+ * */
+function checkDate(theDate)
+{
+    //var re = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/; //British Format
+    var re = /^(\d{4})-(\d{1,2})-(\d{1,2})$/; //American Format
+    var errorMsg = "";
+    var allowBlank = true;
+    var minYear = 1000;
+    //var maxYear = (new Date()).getFullYear();
+    var maxYear = 9999;
+    
+    if(theDate.length > 0) {
+      if(regs = theDate.match(re)) {
+        if(regs[3] < 1 || regs[3] > 31) {
+          errorMsg = "Invalid value for day: " + regs[3];
+        } else if(regs[2] < 1 || regs[2] > 12) {
+          errorMsg = "Invalid value for month: " + regs[2];
+        } else if(regs[1] < minYear || regs[1] > maxYear) {
+          errorMsg = "Invalid value for year: " + regs[1] + " - must be between " + minYear + " and " + maxYear;
+        }
+      } else {
+        errorMsg = "Invalid date format: " + theDate;
+      }
+    } else if(!allowBlank) {
+      errorMsg = "Empty date not allowed!";
+    }
+    return errorMsg;
+
+    //~ if(errorMsg != "") {
+      //~ return false;
+    //~ }
+    //~ return true; 
+}
 
 /**
  * jQuery function to center screen
- * */ 
+ * */
 jQuery.fn.center = function () {
     this.css("position","absolute");
     this.css("top", Math.max(0, (($(window).height() - $(this).outerHeight()) / 2) + 
@@ -181,7 +220,7 @@ if (!String.prototype.format) {
 }
 
 if (!String.prototype.capitalize) {
-	String.prototype.capitalize =  function() { 
+	String.prototype.capitalize =  function() {
 		return this.replace(/^./, function(match){return match.toUpperCase()} );
 	}
 }

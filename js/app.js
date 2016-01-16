@@ -21,8 +21,8 @@ var numTypes = ["float", "double", "decimal", "int", "smallint",
 var dateTypes = ["datetime", "date"];
 var env = "";
 
-//TODO: Remove all unncessary comments.
-//TODO: Remove all unncessary console.log statements.
+//TODO: Remove unncessary comments.
+//TODO: Remove unncessary console.log statements.
 
 /**
  * To be called when used with index.html once its loaded.
@@ -387,6 +387,7 @@ function showFilterDialog(control) {
         $(".filterNumericType .filterType").click(function() {
             $(".filterNumericType").modal('hide');
             //alert($(this).text());
+            filter.numIsDistinct = false;
             var oper  = $(this).text().toLowerCase();
             if (oper.indexOf("clear filter")>-1) {
                 delete filters[theField];
@@ -396,7 +397,8 @@ function showFilterDialog(control) {
                 oper = "sum";
             }
             else if (oper.indexOf("distinct count")>-1) {
-                oper = "distinct count";
+                oper = "count";
+                filter.numIsDistinct = true;
             }
             else if (oper.indexOf("count")>-1) {
                 oper = "count";
@@ -571,8 +573,7 @@ function showFilterDialog(control) {
                 
             $(".filterDate .applyButton").unbind('click');
             $(".filterDate .applyButton").click(function(){
-                $("#panelBodyFilters").append("<button id='filter" + theField + "' class='filter-button btn btn-xs btn-default " + theType + "'>" + theField + "<span class='glyphicon glyphicon-filter'></span></button>");
-                $(".filterDate").modal('hide');
+                //VALIDATION, ETC.
                 if ($(".filterDate li.relative").hasClass("active")) {
                     filter.dateMatcher = "relative";
                     filter.dateRelativeType = $(".filterDate #lblNextn").text().toLowerCase();
@@ -594,19 +595,41 @@ function showFilterDialog(control) {
                     }
                 }
                 else if ($(".filterDate li.range").hasClass("active")) {
+                    var fdate = $(".filterDate #fromdate").val();
+                    var tdate = $(".filterDate #todate").val();
+                    if (checkDate(fdate).length>0) {
+                        bspopup("Invalid From Date");
+                        return;
+                    }
+                    else if (checkDate(tdate).length>0) {
+                        bspopup("Invalid To Date");
+                        return;
+                    }
                     filter.dateMatcher = "range";
-                    filter.dateValues[0] = $(".filterDate #fromdate").val();
-                    filter.dateValues[1] = $(".filterDate #todate").val();
+                    filter.dateValues[0] = fdate;
+                    filter.dateValues[1] = tdate;
                 }
                 else if ($(".filterDate li.gte").hasClass("active")) {
+                    var fdate = $(".filterDate #gtedate").val();
+                    if (checkDate(fdate).length>0) {
+                        bspopup("Invalid Date");
+                        return;
+                    }
                     filter.dateMatcher = "gte";
-                    filter.dateValues[0] = $(".filterDate #gtedate").val();
+                    filter.dateValues[0] = fdate;
                 }
                 else if ($(".filterDate li.lte").hasClass("active")) {
+                    var fdate = $(".filterDate #ltedate").val();
+                    if (checkDate(fdate).length>0) {
+                        bspopup("Invalid Date");
+                        return;
+                    }
                     filter.dateMatcher = "lte";
-                    filter.dateValues[0] = $(".filterDate #ltedate").val();
+                    filter.dateValues[0] = fdate;
                 }
                 filter.dateIncludeNull = $(".filterDate .tab" + filter.dateMatcher + " .includeNull").prop('checked');
+                $("#panelBodyFilters").append("<button id='filter" + theField + "' class='filter-button btn btn-xs btn-default " + theType + "'>" + theField + "<span class='glyphicon glyphicon-filter'></span></button>");
+                $(".filterDate").modal('hide');
                 drawTheChart();
             });
             
@@ -880,11 +903,10 @@ function buildTheTables(options) {
     
     //buildTable($(".table-button:first").attr("id").substring(5));
     buildTable(theTable);
+    clearChart();
 }
 
 function buildTable(tname) {
-    //var tname = event.data.id.substring(5);
-    //currentTable = tables[tname].schema + "." +  tname;
     currentTable = tname;
     currentDimensions = [];
     currentMeasures = [];
@@ -1017,8 +1039,8 @@ function processFiltersHaving() {
     for(key in filters) {
         var filter = filters[key];
         if (filter.type=="number" && filter.numOper != "all") { //other opers will go in having clause
-            sql += (sql.length==0?" having ":" and " ) + filter.numOper.replace("distinct", "") + "(" +  filter.name + ")";
-            //TODO: Handle numIncludeNull here.
+            sql += (sql.length==0?" having (":" and (" ) + filter.numOper
+                + "(" + (filter.numIsDistinct?" distinct ":"")  + filter.name + ")";
             if (filter.numMatcher == "range") {
                 sql += " between " + filter.numValues[0] + " and " + filter.numValues[1];
             }
@@ -1028,6 +1050,11 @@ function processFiltersHaving() {
             else if (filter.numMatcher == "lte") {
                 sql += " <= " + filter.numValues[0];
             }
+            if (filter.numIncludeNull) {
+                sql += " or " + filter.numOper + "(" + (filter.numIsDistinct?" distinct ":"")
+                    + filter.name +  ") is null";
+            }
+            sql += ")";
         }
     }
     return sql;
@@ -1041,7 +1068,7 @@ function processFiltersWhere() {
     for(key in filters) {
         var filter = filters[key];
         if (filter.type=='string') {
-            sql += (sql.length==0?" where ":" and " ) + filter.name;
+            sql += (sql.length==0?" where (":" and (" ) + filter.name;
             if (filter.stringMatcher=='general') {
                 var vals = "(";
                 for(var j=0;j<filter.stringGeneral.length;j++) {
@@ -1071,10 +1098,14 @@ function processFiltersWhere() {
                     }
                 }
             }
+            //TODO: Evaluate whether stringIncludeNull is needed or not.
+            //~ if (filter.stringIncludeNull) {
+                //~ sql += " or " + filter.name + " is null";
+            //~ }
+            sql += ")";
         }
         else if (filter.type == "number" && filter.numOper == "all") { //other opers will go in having clause
-            //TODO: Handle numIncludeNull here.
-            sql += (sql.length==0?" where ":" and ") + filter.name;
+            sql += (sql.length==0?" where (":" and (") + filter.name;
             if (filter.numMatcher == "range") {
                 sql += " between " + filter.numValues[0] + " and " + filter.numValues[1];
             }
@@ -1084,10 +1115,13 @@ function processFiltersWhere() {
             else if (filter.numMatcher == "lte") {
                 sql += " <= " + filter.numValues[0];
             }
+            if (filter.numIncludeNull) {
+                sql += " or " + filter.name + " is null";
+            }
+            sql += ")";
         }
         else if (filter.type == "date") {
-            //TODO: Handle dateIncludeNull here.
-            sql += (sql.length==0?" where ":" and ") + filter.name;
+            sql += (sql.length==0?" where (":" and (") + filter.name;
             if (filter.dateMatcher == "relative") {
                 var reltype = filter.dateRelativeType.slice(0,-1);
                 if (filter.dateValues[0] < 0) { //past date
@@ -1109,6 +1143,10 @@ function processFiltersWhere() {
             else if (filter.dateMatcher == "lte") {
                 sql += " <= '" + filter.dateValues[0] + "'";
             }
+            if (filter.dateIncludeNull) {
+                sql += " or " + filter.name + " is null";
+            }
+            sql += ")";
         }
     }
     console.log("processed filters: ", sql);
