@@ -762,6 +762,7 @@ function showTablesDialog(data) {
     }
     divBody += "</div>"; //class='input-group'>
     $("#selectTableDialog .modal-body #tabTables").html(divBody);
+    $("#selectTableDialog .modal-body .tab-content").animate({scrollTop: 0});
     $("#selectTableDialog").modal('show');
     window.data = data;
 }
