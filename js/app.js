@@ -7,15 +7,13 @@
 var conn = {}; //connection information
 var tables = {}; //currently selected data sources
 var currentTable = ""; //currently selected table for SQL "from" clause
-var currentDimensions = []; //OBSOLETE: currently selected columns for SQL "group by" clause
-var currentMeasures = []; //OBSOLETE: currently selected columns for SQL "select" clause (sum/avg/etc.)
+var currentDimensions = []; //currently dragged into rows/columns box for SQL "group by" clause
+var currentMeasures = []; //currently dragged into rows/columns box for SQL "select" clause (sum/avg/etc.)
 var currentChartType = 'line';
-var columns = [];
-var rows = [];
 var lastSQL = ""; //last successfully executed sql statement
 var lastChartData = {}; //last successful data used to draw the chart
 var lastEnvList = [];
-var filters = {}; //dict for all filters name:Filter.
+var filters = {}; //dict for all filters, pattern: name=>Filter.
 var numTypes = ["float", "double", "decimal", "int", "smallint",
     "tinyint", "mediumint", "bigint"];
 var dateTypes = ["datetime", "date"];
@@ -23,6 +21,7 @@ var env = "";
 
 //TODO: Remove unncessary comments.
 //TODO: Remove unncessary console.log statements.
+//TODO: Try and reduce dependency on window.* variables.
 
 /**
  * To be called when used with index.html once its loaded.
@@ -52,10 +51,6 @@ function init()
         connect();
     }
     handlers();
-    
-    //~ $("#panelBodyColumns").sortable();
-    
-    //$("#panelBodyColumns").disableSelection();
 }
 
 /**
@@ -123,13 +118,10 @@ function exportToCSV() {
             CSV:"true"
             },
         success: function(data) {
-            //nothing to do
-            console.log(data);
             if (data=="success") window.location = "output.csv"
         },
         error: function(response) {
-            //handle error
-            console.log(response);
+            bspopup(response);
         }
         });
 }
@@ -139,7 +131,6 @@ function getHTMLTeaser() {
 }
 
 function drag(ev) {
-    console.log(".drag()",ev.target.id);
     var theData;
     if (ev.target.id=="label") {
         theData = $(ev.target).attr("iden");
@@ -151,10 +142,8 @@ function drag(ev) {
 }
 
 function drop(ev) {
-    console.log("drop()");
     ev.preventDefault();
     var data = ev.dataTransfer.getData("text");
-    console.log(".drop() data, target.id: ", data, ev.target.id);
     var control;
     if (data.indexOf("idf_")>-1) {
         control = $("[iden='" + data + "']");
@@ -169,13 +158,11 @@ function drop(ev) {
         if (ev.target.id.indexOf('panelBodyColumns')>-1
             ||  ev.target.id.indexOf('panelBodyRows')>-1)
             return;
-        console.log("removing: ", control.attr("id"));
         var thePanelBody = control.parent().parent();
         control.parent().remove();
         if (thePanelBody.find(".dropdown").length==0) {
             thePanelBody.append(getHTMLTeaser());
         }
-        //control.remove();
         return;
     }
     else if (control.hasClass('measure') || control.hasClass('dimension')) {
@@ -219,17 +206,8 @@ function drop(ev) {
         }
     }
     //Continue handling for rows/columns drop only.
-    console.log(".drop(). The target is: ", theParent.id);
-    if (theParent.id=='panelBodyRows') {
-        //this is dragged inside rows
-    } else if (theParent.id=='panelBodyColumns') {
-        //this is dragged inside cols
-    }
     var theText = control.text();
     
-    //theParent.appendChild(document.getElementById(data));
-    
-    //var theLabel = document.createElement("label");
     var theField = $("#genericMenu").clone();
     theField.removeClass("hidden");
     theField.attr("id", "genericMenu" + theText);
@@ -237,8 +215,6 @@ function drop(ev) {
     theField.attr("draggable", true);
     theField.attr("ondragstart", "drag(event)");
 
-    
-    //$(theLabel).addClass('btn btn-xs btn-success');
     if (control.hasClass("measure")) {
         theField.addClass("measure");
         theField.find("#label").text("COUNT(" + control.text() + ")")
@@ -265,8 +241,6 @@ function drop(ev) {
  * */
 function showFilterDialog(control) {
     //measure dragged into dimension
-    //control.appendTo($(theParent));
-    console.log("showFilterDialog()");
     var theType = "";
     var theField = control.text();
     var isDragdrop = false;
@@ -291,7 +265,6 @@ function showFilterDialog(control) {
         else {
             filter = new Filter(theField, theType);
             filters[theField] = filter;
-            console.log("Filter doesn't exist. Creating new one.");
         }
     }
     else {
@@ -357,12 +330,9 @@ function showFilterDialog(control) {
                 var rows = JSON.parse(data);
                 var htmldata = "";
                 for(var i=0;i<rows.length;i++) {
-                    console.log(rows[i]);
                     var attr = '';
                     if (filter.stringGeneral.indexOf(rows[i][0])>-1) {
-                        console.log("loading string value ", rows[i][0]);
                         attr = 'checked';
-                        //$(".filterString .stringValue[value='" + rows[i][0] + "']").prop("checked",true);
                     }
                     htmldata += '<div><label><input class="stringValue" type="checkbox" ' + attr + ' value="' + rows[i][0] +  '">&nbsp;' + rows[i][0]  + '</label></div>';
                 }
@@ -433,7 +403,6 @@ function showFilterDialog(control) {
                 + (oper=="all"?"":"GROUP BY " + currentDimensions[0])
                 + " ORDER BY " + clause.replace("distinct", "");
             }
-            console.log(sql);
             doTestCustomSQL({
                 silent: true,
                 sql: sql,
@@ -457,8 +426,6 @@ function showFilterDialog(control) {
                         theOperLabel = oper + "(" + theField + ")";
                     }
                     //RANGE SLIDER
-                    console.log("minValue, maxValue", minValue, maxValue);
-                    console.log("now creating range slider.");
                     $(".filterNumeric .rangeSlider").slider({
                         range: true, min: minValue, max: maxValue,
                         values: [minValue, maxValue],
@@ -513,7 +480,6 @@ function showFilterDialog(control) {
                     $(".filterNumeric .clearButton").unbind('click');
                     $(".filterNumeric .clearButton").click(function() {
                         if (!filters.hasOwnProperty(theField)) return;
-                        console.log("Cleared filter ", theField);
                         delete filters[theField];
                         drawTheChart();
                     });
@@ -521,7 +487,6 @@ function showFilterDialog(control) {
                     $(".filterNumeric").modal('show');
                 },
                 error: function(data){
-                    console.log("sql error", data);
                     alert("Error occured");
                 }
             });
@@ -682,10 +647,7 @@ function allowDrop(ev) {
 }
 
 function doConnect() {
-    console.log("doConnect()");
     if ($("#connectDialog .refresh").hasClass("spinning")) {
-        console.log("spinning...");
-        //bspopup("Connection in progress...");
         return;
     }
     
@@ -701,7 +663,6 @@ function doConnect() {
 }
 
 function connect() {
-    console.log("connect");
     $("#connectDialog .refresh").addClass("spinning");
     $.ajax({
         url: "app.php",
@@ -719,8 +680,6 @@ function connect() {
                     text: data,
                     button2: "Retry",
                     success: function(ev) {
-                        //console.log(ev.button);
-                        
                         if (ev.button == 'button2') showConnectDialog();
                     }});
                 return;
@@ -750,7 +709,6 @@ function showSQLDialog() {
 }
 
 function showTablesDialog(data) {
-    //console.log(data);
     data = JSON.parse(data);
     divBody = "<div class='input-group'>";
     for (var i=0;i<data.length;i++) {
@@ -760,7 +718,7 @@ function showTablesDialog(data) {
             divBody += "<label class='btn btn-xs btn-default'><input name='grpSelectTable' type='radio' value='" + tname + "' id='"  + tname +  "' " + ((i==0) ? "checked" : "") + ">&nbsp;" + tname + "</label><br>";
         }
     }
-    divBody += "</div>"; //class='input-group'>
+    divBody += "</div>";
     $("#selectTableDialog .modal-body #tabTables").html(divBody);
     $("#selectTableDialog .modal-body .tab-content").animate({scrollTop: 0});
     $("#selectTableDialog").modal('show');
@@ -779,7 +737,6 @@ function doTestCustomSQL(options) {
         method: "POST",
         data: data,
         success: function(data){
-            console.log(data);
             if (data.indexOf("Error code:") == -1) {
                 if (!options.silent) {
                     result = JSON.parse(data);
@@ -824,7 +781,6 @@ function doSelectTable() {
                     if (!$.isNumeric(key)) {
                         var val = result[0][key];
                         var theType = "";
-                        console.log("key and val: ", result[0][key], val);
                         if ($.isNumeric(val)) {
                             theType = "int";
                         }
@@ -874,10 +830,8 @@ function buildTheTables(options) {
     for (var i=0;i<data.length;i++) {
         var row = data[i];
         var theTable = row.table_schema + "." + row.table_name;
-        //console.log(row.table_name + "." + row.column_name);
         if (!(theTable in tables)) {
             tables[theTable] = {};
-            //var types = ['primary', 'info', 'warning', 'success', 'danger'];
             var types = ['default'];
             var rand = Math.floor(Math.random() * types.length);
             divtables += '<button id=table' + row.table_name +  ' title=' + row.table_name +  ' class="btn btn-xs btn-' + types[rand] +  ' table-button">' +  row.table_name + '</button>';
@@ -892,17 +846,13 @@ function buildTheTables(options) {
             tables[theTable]['measures'].push(theField);
         }
         else {
-            //console.log('non number field found ', row.column_name, row.column_type);
             tables[theTable]['dimensions'].push(theField);
         }
     }
     
     divtables += "</div>";
     $("#panelTables .panel-body").html(divtables)
-    
     window.tables = tables;
-    
-    //buildTable($(".table-button:first").attr("id").substring(5));
     buildTable(theTable);
     clearChart();
 }
@@ -911,19 +861,13 @@ function buildTable(tname) {
     currentTable = tname;
     currentDimensions = [];
     currentMeasures = [];
-    console.log(".click ", tname, tables[tname].measures);
     //generate html for dimensions and measures
     var divdimensions = "";
     var divmeasures = "";
     for(var i=0;i<tables[tname].measures.length;i++) {
-        console.log("measure:",tables[tname].measures[i].name);
         divmeasures += '<label id="' + tables[tname].measures[i].name +  '" draggable="true" ondragstart="drag(event)"  class="btn  btn-xs btn-default text-default measure">' + tables[tname].measures[i].name + '</label>';
     }
-    if (tables[tname].dimensions.length >0) {
-        //currentDimension = tables[tname].dimensions[0];
-    }
     for(var i=0;i<tables[tname].dimensions.length;i++) {
-        console.log("dimensions:",tables[tname].dimensions[i].name);
         divdimensions += '<label id="' + tables[tname].dimensions[i].name +  '"  draggable="true" ondragstart="drag(event)" class="btn btn-xs btn-default dimension">' + tables[tname].dimensions[i].name + '</label>';
     }
     divdimensions += "";
@@ -941,7 +885,6 @@ function buildTable(tname) {
  * 
  * */
 function drawTheChart() {
-    //if (currentMeasures.length==0) return;
     lastSQL = "";
     currentDimensions=[];
     currentMeasures=[];
@@ -954,7 +897,6 @@ function drawTheChart() {
         }
     })
     .promise().done(function() {
-        console.log(currentDimensions.length, currentMeasures.length)
         if (currentDimensions.length==0 || currentMeasures.length==0) {
             clearChart();
             return;
@@ -964,7 +906,6 @@ function drawTheChart() {
         var selClause = "";
         var groupbyClause = "";
         for (var i=0;i<currentMeasures.length;i++) {
-            //selClause += (selClause.length==0 ? "" : ",") + "count(" +  currentMeasures[i] + ")";
             selClause += (selClause.length==0 ? "" : ",") +   currentMeasures[i];
         }
         for (var i=0;i<currentDimensions.length;i++) {
@@ -979,7 +920,7 @@ function drawTheChart() {
             sql = "SELECT " + selClause + " FROM " + currentTable + " " + processFiltersWhere() + " GROUP BY "
                 + groupbyClause + processFiltersHaving();
         }
-        console.log(sql);
+        console.log("processed sql: ", sql);
         $("#panelDimensions .glyphicon-refresh").addClass("spinning");
         $("#panelMeasures .glyphicon-refresh").addClass("spinning");
         $.ajax({
@@ -1018,15 +959,11 @@ function drawTheChart() {
                     series: series,
                     categories: categories
                 };
-                //window.data = data;
-                //window.series = series;
-                //window.categories = categories;
                 drawChart(categories, series);
             },
             error: function(response) {
                 $("#panelDimensions .glyphicon-refresh").removeClass("spinning");
                 $("#panelMeasures .glyphicon-refresh").removeClass("spinning");
-                //handle error
             }
             });        
     });
@@ -1058,6 +995,7 @@ function processFiltersHaving() {
             sql += ")";
         }
     }
+    console.log("processed having filters: ", sql);
     return sql;
 }
 
@@ -1082,7 +1020,7 @@ function processFiltersWhere() {
             }
             else if (filter.stringMatcher=='wildcard') {
                 if (filter.stringWcIncludeAll == false && filter.stringWcValue.length==0) {
-                    sql += " = ''"; //just select empty values
+                    sql += " = ''";
                 }
                 else {
                     if (filter.stringWcType == "contains") {
@@ -1150,7 +1088,7 @@ function processFiltersWhere() {
             sql += ")";
         }
     }
-    console.log("processed filters: ", sql);
+    console.log("processed where filters: ", sql);
     return sql;
 }
 
@@ -1162,14 +1100,13 @@ function processFiltersWhere() {
  * */
 function drawChart(categories, series) {
     var options = {};
-    options.chart = {type: currentChartType}; //'bar'
-    //options.title = {text: currentDimensions[0] + " wise chart"};
+    options.chart = {type: currentChartType};
     options.title = {text: ""};
     options.xAxis = {categories: categories};
     options.yAxis = {title: {
                 text: 'Units'
             }};
-    options.series = series; //JSON.parse(series); //[{name: series[0].name, data: series[0]['data']}];
+    options.series = series;
     $('#theChart').highcharts(options);
 };
 
@@ -1182,14 +1119,12 @@ function clearEnv() {
 }
 
 function fetchEnvs() {
-    console.log("fetching all envs.");
     $("#ddnrestore .dropdown-menu li").remove();
     $.ajax({
         url: "app.php",
         method: "POST",
         data: {FETCH_ENVS: ""},
         success: function(data) {
-            console.log(data);
             var theList = JSON.parse(data);
             lastEnvList = theList;
             for(var i=0;i<theList.length;i++) {
@@ -1230,7 +1165,6 @@ function saveEnv() {
 }
 
 function restoreEnv(fileName, callback) {
-    console.log("restoreEnv()", fileName);
     $.ajax({
         url: "app.php",
         type: "POST",
@@ -1256,7 +1190,6 @@ function restoreEnv(fileName, callback) {
 }
 
 function clearChart() {
-    console.log('clearChart()');
     $('#theChart').highcharts({
     chart: {
         type: 'line',//'bar'
