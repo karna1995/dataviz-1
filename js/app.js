@@ -1221,6 +1221,7 @@ function saveEnv() {
                 success: function(data) {
                     console.log(data);
                     fetchEnvs();
+                    bspopup("Chart data is saved.");
                 }
             });
         }

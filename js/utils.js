@@ -61,7 +61,7 @@ jQuery.fn.center = function () {
  * */
 function bspopup(options, success) {
     if ($(".popupBox").length == 0) {
-        $.get("js/modalpopups.dat", function(data){
+        $.get("js/bootui.dat", function(data){
             $('body').append(data);
             bspopup(options, success);
             return;
@@ -71,15 +71,16 @@ function bspopup(options, success) {
 	//text, type, title
 	if (typeof(options)=='string') {
 		text = options;
+        options = {type:"text", text:text};
 	}
-	else {
-		text = options.text; //.replace("\n","<br>");
-	}
-	
-	type = options.type;
-	title = options.title;
+    if (options==undefined) options={};
+	if (options.type==undefined) options.type='text';
+	if (options.text==undefined) options.text='';
+    
+    var text = options.text;
+	var type = options.type;
+	var title = options.title;
 	//if (obj.delay!=undefined) delay = obj.delay;
-	if (type==undefined) type='text';
     var proto = '';
     if (type=='text') {
         proto = 'Generic';

@@ -287,14 +287,14 @@ button.btn.btn-danger {
         <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
         <h4 class="modal-title">Select Table</h4>
       </div>
-      <div class="modal-body" style="max-height:300px; overflow-y:scroll;">
+      <div class="modal-body">
             <!-- Nav tabs -->
             <ul class="nav nav-tabs" role="tablist">
                 <li role="presentation" class="active"><a href="#tabTables" role="tab" data-toggle="tab">Tables</a></li>
                 <li class="" role="presentation"><a href="#tabCustomSQL" role="tab" data-toggle="tab">Custom SQL</a></li>
             </ul>
             <!-- Tab panes -->
-            <div class="tab-content">
+            <div class="tab-content" style="max-height:300px; overflow-y:scroll;">
                 <div role="tabpanel" class="tab-pane active" id="tabTables"></div>
                 <div role="tabpanel" class="tab-pane" id="tabCustomSQL">
                     <textarea id="txtCustomSQL" rows="7" cols="65">SELECT * FROM ;</textarea>
