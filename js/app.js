@@ -145,6 +145,7 @@ function drop(ev) {
     ev.preventDefault();
     var data = ev.dataTransfer.getData("text");
     var control;
+    console.log(data);
     if (data.indexOf("idf_")>-1) {
         control = $("[iden='" + data + "']");
     }
@@ -153,14 +154,18 @@ function drop(ev) {
     }
     if (control.attr("id") == 'label') {
         //a row/column button is dragged outside
+        console.log('id==label');
         if (ev.target.id=='label') return;
         if (control.parent().attr("id").indexOf("genericMenu")==-1) return;
         if (ev.target.id.indexOf('panelBodyColumns')>-1
             ||  ev.target.id.indexOf('panelBodyRows')>-1)
             return;
         var thePanelBody = control.parent().parent();
+        console.log("Now removing ", control.parent());
         control.parent().remove();
+        console.log('removed the label parent control.');
         if (thePanelBody.find(".dropdown").length==0) {
+            console.log('.dropdown not found, adding teaser.');
             thePanelBody.append(getHTMLTeaser());
         }
         return;
