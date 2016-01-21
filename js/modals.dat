@@ -34,6 +34,7 @@
  <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
+        <button type="button" class="close filterType" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only"># Clear Filter</span></button>
         <h4 class="modal-title">How do you want to Filter this field?</h4>
       </div>
       <div class="modal-body" style="">
@@ -73,6 +74,7 @@
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
+        <button type="button" class="close clearButton" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
         <h4 class="modal-title">Filter Date</h4>
       </div>
       <div class="modal-body" style="">
@@ -152,6 +154,7 @@
  <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
+        <button type="button" class="close filterType" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only"># Clear Filter</span></button>
         <h4 class="modal-title">How do you want to Filter this field?</h4>
       </div>
       <div class="modal-body" style="">
@@ -176,6 +179,7 @@
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
+        <button type="button" class="close clearButton" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
         <h4 class="modal-title">Filter Numbers</h4>
       </div>
       <div class="modal-body" style="">
@@ -232,7 +236,7 @@
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <button type="button" class="hidden close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+        <button type="button" class="close clearButton" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
         <h4 class="modal-title">Filter Strings</h4>
       </div>
       <div class="modal-body" style="">

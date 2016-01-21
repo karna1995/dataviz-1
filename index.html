@@ -98,7 +98,8 @@ body {
 }
 
 #panelMeasures .measure, 
-#panelDimensions .dimension {
+#panelDimensions .dimension,
+#panelFilters .filter-button {
     display:block;
     margin: 1px 1px;
     border: 0px none black;
@@ -134,6 +135,12 @@ button.btn.btn-danger {
     /*white-space: normal;*/
     max-width: 250px;
     overflow-x: hidden;
+}
+
+#panelFilters .filter-button {
+    max-width: 1500px;
+    overflow-x: visible;
+    width:100%;
 }
 
 .glyphicon-refresh.spinning {
