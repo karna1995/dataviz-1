@@ -71,7 +71,7 @@ $(document).ready(function() {
     }
 /*Bootstrap submenu override ends*/
 body {
-    padding-top: 20px;
+    padding-top: 10px;
 }    
 
 #theChart {
@@ -87,9 +87,26 @@ body {
     padding: 3px;
 }
 
-#panelTop .btn {
-    
+#panelTop {
+    background-color: skyblue;
+    border-bottom: 1px solid black;
+    margin-bottom: 13px;
 }
+
+#panelTop .panel-body a:hover {
+    background-color: darkorange;
+}
+
+#panelTop .panel-body small {
+    color: black;
+    padding-right: 5px;
+    padding-left: 5px;
+}
+
+#panelTop .panel-body small:first {
+    padding-left: 2px;
+}
+
     
 #panelMeasures .panel-body,
 #panelDimensions .panel-body,
@@ -164,20 +181,22 @@ button.btn.btn-danger {
     to { -webkit-transform: rotate(360deg); }
 }
 </style>
-<div class="container" style="margin-top: 2px;"  ondragover="allowDrop(event)"  ondrop="drop(event)" >
+<div class="container"  ondragover="allowDrop(event)"  ondrop="drop(event)" >
     <div class="row">
-        <div class="col-md-3">
+        <div class="col-md-4">
             <div id="panelTop" >
                 <div class="panel-body" style="border: 0px none black;">
-                <h3 style="margin: 0px;">
+                <h4 style="margin: 0px;">
                     <a class="" href="#" onclick="saveEnv();"><small>Save Chart</small></a>
-                    <span id="ddnrestore" class="dropdown pull-right">
+                    <span id="ddnrestore" class="dropdown">
                         <a href="#"  data-toggle="dropdown"  title="Restore Environment" class=""><small>Restore Chart</small></a>
                         <ul class="dropdown-menu" role="menu">
                             
                         </ul>
                     </span>
-                </h3>
+                    <a class="" href="#"><small>Dashboards</small></a>
+                    <a class="" href="#"><small>Help</small></a>
+                </h4>
                 </div>
             </div>
         </div>
