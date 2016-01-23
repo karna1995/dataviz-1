@@ -24,8 +24,8 @@ function Filter(name, type) {
     this.stringWcExclude = false;
 
     this.numOper = "all"; //all, sum, count, distinct count.
-    this.numMatcher = "range"; //range, gte, lte.
-    this.numValues = [];//only 0th element, except in case of range.
+    this.numMatcher = "range"; //range, gte, lte, special.
+    this.numValues = [];//only 0th element, except in case of range and special.
     this.numIncludeNull = false; //include null values.
     this.numIsDistinct = false; //whether to prefix field with distinct clause in group queries.
 

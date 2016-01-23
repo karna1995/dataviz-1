@@ -55,8 +55,16 @@ jQuery.fn.center = function () {
     return this;
 }
 
+
 /**
- * Shows a bootstrap popup alert on the center of screen.
+ * Alias to bspopup(string) dialog box.
+ * */
+function bsalert(message) {
+    bspopup(message);
+}
+
+/**
+ * Shows a bootstrap popup dialog on the center of screen.
  * Depends on jQuery and Bootstrap.
  * */
 function bspopup(options, success) {

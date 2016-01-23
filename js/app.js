@@ -281,14 +281,16 @@ function showFilterDialog(control) {
     }
 
     console.log("isDragdrop", isDragdrop);
-    $('#filter' + theField).remove(); //remove old one first
+    //$('#filter' + theField).remove(); //remove old one first
     
     //add a filter control
     if (theType=="string") {
         $(".filterString .applyButton").unbind("click");
+        console.log("now binding .applyButton.click", $(".filterString .applyButton").length);
         $(".filterString .applyButton").click(function() {
-            if ($('#filter' + theField).length>=1) return;
+            //if ($('#filter' + theField).length>=1) return;
             console.log("click() .filterString .applyButton");
+            $('#filter' + theField).remove(); //remove old filter buttons
             $("#panelBodyFilters").append("<button id='filter" + theField + "' class='filter-button btn btn-xs btn-default " + theType + "'>" + theField + "<span class='glyphicon glyphicon-filter'></span></button>");
             $(".filterString").modal('hide');
             if ($(".filterString li.general").hasClass("active")) {
@@ -311,6 +313,7 @@ function showFilterDialog(control) {
         });
         $(".filterString .clearButton").unbind("click");
         $(".filterString .clearButton").click(function() {
+            $('#filter' + theField).remove(); //remove old filter buttons
             if (!filters.hasOwnProperty(theField)) return;
             delete filters[theField];
             drawTheChart();
@@ -364,7 +367,8 @@ function showFilterDialog(control) {
             //alert($(this).text());
             filter.numIsDistinct = false;
             var oper  = $(this).text().toLowerCase();
-            if (oper.indexOf("clear filter")>-1) {
+            if (oper.indexOf("remove filter")>-1) {
+                $('#filter' + theField).remove(); //remove old filter buttons
                 delete filters[theField];
                 return;
             }
@@ -392,6 +396,7 @@ function showFilterDialog(control) {
             }
             if (oper != "all" && currentDimensions.length == 0) {
                 bspopup("No dimensions are selected. At least one is needed for group-by clause.");
+                $('#filter' + theField).remove(); //remove old filter buttons
                 delete filters[theField];
                 return;
             }
@@ -459,7 +464,8 @@ function showFilterDialog(control) {
                     //EVENTS
                     $(".filterNumeric .applyButton").unbind('click');
                     $(".filterNumeric .applyButton").click(function() {
-                        if ($('#filter' + theField).length>=1) return;
+                        //if ($('#filter' + theField).length>=1) return;
+                        $('#filter' + theField).remove() //remove old filter button
                         $("#panelBodyFilters").append("<button id='filter" + theField + "' class='filter-button btn btn-xs btn-default " + theType + "'>" + theField + "<span class='glyphicon glyphicon-filter'></span></button>");
                         $(".filterNumeric").modal('hide');
                         
@@ -484,6 +490,7 @@ function showFilterDialog(control) {
                     });
                     $(".filterNumeric .clearButton").unbind('click');
                     $(".filterNumeric .clearButton").click(function() {
+                        $('#filter' + theField).remove(); //remove old filter buttons
                         if (!filters.hasOwnProperty(theField)) return;
                         delete filters[theField];
                         drawTheChart();
@@ -506,7 +513,8 @@ function showFilterDialog(control) {
             //SET FILTER TYPE
             var clickLater = []; //array of controls to be clicked later
             var oper  = $(this).text().toLowerCase();
-            if (oper.indexOf("clear filter")>-1) {
+            if (oper.indexOf("remove filter")>-1) {
+                $('#filter' + theField).remove(); //remove old filter buttons
                 delete filters[theField];
                 drawTheChart();
                 return;
@@ -537,6 +545,7 @@ function showFilterDialog(control) {
             //EVENTS
             $(".filterDate .clearButton").unbind('click');
             $(".filterDate .clearButton").click(function(){
+                $('#filter' + theField).remove(); //remove old filter buttons
                 delete filters[theField];
                 drawTheChart();
             });
@@ -598,6 +607,7 @@ function showFilterDialog(control) {
                     filter.dateValues[0] = fdate;
                 }
                 filter.dateIncludeNull = $(".filterDate .tab" + filter.dateMatcher + " .includeNull").prop('checked');
+                $('#filter' + theField).remove() //remove old filter button
                 $("#panelBodyFilters").append("<button id='filter" + theField + "' class='filter-button btn btn-xs btn-default " + theType + "'>" + theField + "<span class='glyphicon glyphicon-filter'></span></button>");
                 $(".filterDate").modal('hide');
                 drawTheChart();
@@ -726,6 +736,10 @@ function showTablesDialog(data) {
     divBody += "</div>";
     $("#selectTableDialog .modal-body #tabTables").html(divBody);
     $("#selectTableDialog .modal-body .tab-content").animate({scrollTop: 0});
+    $("#selectTableDialog .selectTableButton").unbind("click");
+    $("#selectTableDialog .selectTableButton").click(function(){
+        doSelectTable();
+    });
     $("#selectTableDialog").modal('show');
     window.data = data;
 }
@@ -858,7 +872,7 @@ function buildTheTables(options) {
     divtables += "</div>";
     $("#panelTables .panel-body").html(divtables)
     window.tables = tables;
-    buildTable(theTable);
+    buildTable(theTable); //just build the latest table from the collection.
     clearChart();
 }
 
@@ -882,6 +896,10 @@ function buildTable(tname) {
 
     $("#panelColumns .panel-body").html(getHTMLTeaser());
     $("#panelRows .panel-body").html(getHTMLTeaser());
+
+    //Resest Filters
+    filters = {};
+    $("#panelFilters .panel-body").html("");
 }
 
 /*

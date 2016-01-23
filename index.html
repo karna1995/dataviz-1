@@ -88,13 +88,13 @@ body {
 }
 
 #panelTop {
-    background-color: skyblue;
+    /*background-color: skyblue;*/
     border-bottom: 1px solid black;
     margin-bottom: 13px;
 }
 
 #panelTop .panel-body a:hover {
-    background-color: darkorange;
+    background-color: lightgray; /*darkorange;*/
 }
 
 #panelTop .panel-body small {
@@ -145,7 +145,7 @@ body {
    
 #panelTables .panel-body {
     max-height: 200px;
-    overflow-y: scroll;
+    overflow-y: auto;
 }
     
 button.btn,
@@ -331,7 +331,7 @@ button.btn.btn-danger {
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-default" onclick="doSelectTable();"><span class="glyphicon glyphicon-refresh"></span> Connect</button>
+        <button type="button" class="selectTableButton btn btn-default"><span class="glyphicon glyphicon-refresh"></span> Connect</button>
       </div>
     </div><!-- /.modal-content -->
   </div><!-- /.modal-dialog -->

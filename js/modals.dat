@@ -61,7 +61,7 @@
                 <button class="filterType btn btn-lg btn-default"># Minimum</button>
                 <hr>
 -->
-                <button class="filterType btn btn-lg btn-primary"># Clear Filter</button>
+                <button class="filterType btn btn-lg btn-primary"># Remove Filter</button>
             </div>
       </div>
       <div class="modal-footer">
@@ -144,7 +144,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-primary applyButton">Apply</button>
-        <button type="button" class="btn btn-default clearButton" data-dismiss="modal">Clear</button>
+        <button type="button" class="btn btn-default clearButton" data-dismiss="modal">Remove Filter</button>
       </div>
     </div>
   </div>
@@ -154,7 +154,7 @@
  <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <button type="button" class="close filterType" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only"># Clear Filter</span></button>
+        <button type="button" class="close filterType" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only"># Remove Filter</span></button>
         <h4 class="modal-title">How do you want to Filter this field?</h4>
       </div>
       <div class="modal-body" style="">
@@ -166,7 +166,7 @@
                 <button class="filterType btn btn-lg btn-default"># Distinct Count</button>
                 <button class="filterType btn btn-lg btn-default"># Maximum</button>
                 <button class="filterType btn btn-lg btn-default"># Minimum</button>
-                <button class="filterType btn btn-lg btn-primary"># Clear Filter</button>
+                <button class="filterType btn btn-lg btn-primary"># Remove Filter</button>
             </div>
       </div>
       <div class="modal-footer">
@@ -188,7 +188,7 @@
                 <li role="presentation" class="range active"><a href="#tabRange" role="tab" data-toggle="tab">Range</a></li>
                 <li role="presentation" class="gte"><a href="#tabGTE" role="tab" data-toggle="tab">At Least</a></li>
                 <li role="presentation" class="lte"><a href="#tabLTE" role="tab" data-toggle="tab">At Most</a></li>
-                <li class="hidden" role="presentation"><a href="#tabSpecial" role="tab" data-toggle="tab">Special</a></li>
+                <li role="presentation" class="hidden special"><a href="#tabSpecial" role="tab" data-toggle="tab">Exact Values</a></li>
             </ul>
             <!-- Tab panes -->
             <div class="tab-content">
@@ -220,12 +220,22 @@
                     </div>
                 </div>
                 <div role="tabpanel" class="hidden tab-pane" id="tabSpecial">
+                    <div class="panel-body">
+                        <div class="numericCheckBoxes" style="max-height: 200px;overflow-y: auto;">
+                            <label class="mark">Enter values:</label>
+                            <input type='text' class='form-control'>
+                            <label class="small">(Enter comma-separated for multiple values, example: 4, 2, 3)</label>
+                        </div>
+                        <div>
+                            <label class="pull-right">Exclude <input id="specialExclude" class="" type="checkbox"></label>
+                        </div>
+                    </div>
                 </div>
             </div>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-primary applyButton">Apply</button>
-        <button type="button" class="btn btn-default clearButton" data-dismiss="modal">Clear</button>
+        <button type="button" class="btn btn-default clearButton" data-dismiss="modal">Remove Filter</button>
       </div>
     </div>
   </div>
@@ -250,7 +260,7 @@
                 <div role="tabpanel" class="tab-pane active" id="tabGeneral">
                     <div class="panel-body">
                         <input class="hidden form-control" placeholder="Enter search text">
-                        <div class="stringCheckBoxes" style="max-height: 200px;overflow-y: scroll;">
+                        <div class="stringCheckBoxes" style="max-height: 200px;overflow-y: auto;">
                             <div><label><input type="checkbox"> Foo</label></div>
                             <div><label><input type="checkbox"> Bar</label></div>
                             <div><label><input type="checkbox"> Baz</label></div>
@@ -274,7 +284,7 @@
                 </div>
                 <div role="tabpanel" class="tab-pane" id="tabWildcard">
                       <div class="panel-body" >
-                          <div style="min-height: 200px; max-height: 200px;overflow-y: scroll;">
+                          <div style="min-height: 200px; max-height: 200px;overflow-y: auto;">
                             <label>Match Value:</label>
                             <label class="pull-right">Exclude <input id="WcExclude" type="checkbox"> </label>
                             <input type="text" id="txtWcValue" >
@@ -294,7 +304,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default btn-primary applyButton" >Apply</button>
-        <button type="button" class="btn btn-default clearButton" data-dismiss="modal">Clear</button>
+        <button type="button" class="btn btn-default clearButton" data-dismiss="modal">Remove Filter</button>
       </div>
     </div>
   </div>
