@@ -400,19 +400,18 @@ function showFilterDialog(control) {
                 delete filters[theField];
                 return;
             }
-            //QUERY THE DATABASE FOR MIN-MAX RANGES
+            //QUERY THE DATABASE FOR MIN-MAX RANGES & VALUES
             var clause = (oper=="all"?theField:oper + "(" + theField + ")");
             if (currentTable=="performance_schema.CustomSQL") {
                 sql = "SELECT distinct " + clause + " FROM (" + $("#txtCustomSQL").val().replace(";","") + ") foo"
-                + (oper=="all"?"":"GROUP BY " + currentDimensions[0])
-                + " ORDER BY " + clause.replace("distinct", "");
+                + (oper=="all"?"":"GROUP BY " + currentDimensions[0]) + " ORDER BY " + clause.replace("distinct", "");
                  
             }
             else {
                 sql = "SELECT distinct "  + clause + " FROM " + currentTable + " "
-                + (oper=="all"?"":"GROUP BY " + currentDimensions[0])
-                + " ORDER BY " + clause.replace("distinct", "");
+                + (oper=="all"?"":"GROUP BY " + currentDimensions[0]) + " ORDER BY " + clause.replace("distinct", "");
             }
+            //TODO: Skip this whole below query process if values are found in cache.
             doTestCustomSQL({
                 silent: true,
                 sql: sql,
@@ -462,6 +461,16 @@ function showFilterDialog(control) {
                     $(".filterNumeric .gteValue").text(theOperLabel + " >= " + $(".gteSlider").slider("value"));
                     $(".filterNumeric .lteValue").text(theOperLabel + " <= " + $(".lteSlider").slider("value"));
                     //EVENTS
+                    $('.filterNumeric li.special a[data-toggle="tab"]').unbind('shown.bs.tab');
+                    $('.filterNumeric li.special a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+                        //var target = $(e.target).attr("href") // activated tab
+                        $('.filterNumeric #tabSpecial .numericCheckBoxes').html('');
+                        var result = window.result;
+                        for(var i=0;i<result.length;i++) {
+                            $('.filterNumeric #tabSpecial .numericCheckBoxes').append('<div><label><input type="checkbox">' + result[i][0] +  '</label></div>');
+                        }
+                    });
+
                     $(".filterNumeric .applyButton").unbind('click');
                     $(".filterNumeric .applyButton").click(function() {
                         //if ($('#filter' + theField).length>=1) return;
@@ -486,6 +495,17 @@ function showFilterDialog(control) {
                             filter.numIncludeNull = $(".filterNumeric #tabLTE input[type='checkbox']").prop("checked");
                             filter.numValues[0] =  $(".lteSlider").slider("value");
                         }
+                        else if ($(".filterNumeric li.special").hasClass("active")) {
+                            filter.numMatcher = "special";
+                            filter.numValues = [];
+                            $(".filterNumeric .numericCheckBoxes input[type='checkbox']").each(function() {
+                                if ($(this).prop('checked')) {
+                                    var val = Number($(this).parent().text());
+                                    filter.numValues.push(val);
+                                    filter.numSpecialExclude = $(".filterNumeric #specialExclude").prop("checked");
+                                }
+                            });
+                        }
                         drawTheChart();
                     });
                     $(".filterNumeric .clearButton").unbind('click');
@@ -495,7 +515,9 @@ function showFilterDialog(control) {
                         delete filters[theField];
                         drawTheChart();
                     });
-                    //SHOW
+                    //SHOW 
+                    //TODO: Evaluate if deafult tab is needed or not.
+                    $(".filterNumeric li.range a").tab('show');
                     $(".filterNumeric").modal('show');
                 },
                 error: function(data){
