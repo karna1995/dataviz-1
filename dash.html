@@ -11,36 +11,99 @@
     <link rel="stylesheet" href="css/bootstrap.min.css">
 </head>
 <style>
+body {
+    padding-top: 10px;
+}    
+
 .chart  {
     min-height: 250px;
     min-width: 250px;
 }
 
 .placeholder {
-    background-color: lightblue;
+    background-color: lightgrey;
+    font-size: 120px;
+    font-family: verdana;
     min-height: 250px;
     min-width: 250px;
     text-align: center;
+    border-radius: 10px;
 }
 
 .placeholder:hover {
-    background-color: lightgreen;
+    background-color: lightblue;
     cursor: pointer;
 }
 .placeholder:hover h1:after  {
     content: "Add New Chart";
 }
 
+#panelTop {
+    /*background-color: skyblue;*/
+    border-bottom: 1px solid black;
+    margin-bottom: 13px;
+}
+
+#panelTop .panel-body {
+    padding: 3px;
+}
+
+
+#panelTop .panel-body a:hover {
+    background-color: lightgray; /*darkorange;*/
+}
+
+#panelTop .panel-body small {
+    color: black;
+    padding-right: 5px;
+    padding-left: 5px;
+}
+
+#panelTop .panel-body small:first {
+    padding-left: 2px;
+}
+
+
+
+
 </style>
 <body>
     <script>
+	var chartfiles = []; //list of chart files currently loaded on screen.
+	
     $(document).ready(function() {
+		chartfiles = [];
         fetchEnvs();
-        //restoreEnv("data");
+		//TODO: check for querystring and load an existing dash if needed
+		var fname = getQueryString("file", window.location.href);
+		if (fname != null) {
+			$.ajax({
+				url: "app.php",
+				method: "POST",
+				data: {GET_DASH: fname},
+				success: function(data){
+					if (data == "FILE_NOT_FOUND") {
+						bspopup(data);
+						if (callback != undefined) callback(data);
+						return;
+					}
+					files =  JSON.parse(data).files;
+					chartfiles = files.slice();
+					createAllCharts(files);
+				}
+			});
+		}
     });
+
+	function createAllCharts(files) {
+		createChart($(".placeholder"), files.shift(), function(){
+			if (files.length>0) createAllCharts(files);
+		});
+	}
 
     $("body").on("click", ".placeholder", function() {
         var thePlaceholder = $(this);
+		console.log('.placeholder_click');
         bspopup({
             type: "radiolist",
             text: "Enter saved filename: ",
@@ -49,29 +112,53 @@
                 console.log("success!", ev.value);
                 filename = ev.value;
                 if (filename==null || filename.length==0) return;
-                console.log('.placeholder_click');
-                thePlaceholder.removeClass("placeholder").addClass("chartContainer"); //swap placeholder for a proper class
-                thePlaceholder.html('<div id="theChart" class="chart"></div>'); 
-                console.log('$("#theChart").length', $("#theChart").length);
-                restoreEnv(filename, function(data) {
-                    if (data.indexOf("not found")>-1) {
-                        $("#theChart").parent().remove();
-                        $("#theChart").remove();
-                    }
-                    else {
-                        $("#theChart").attr("id", "");
-                    }
-                    $(".main.row").append('<div class="placeholder col-md-5"><h1></h1></div>'); //add a new placeholder
-                });
+                createChart(thePlaceholder, filename);
             }
         });
-        
-        
     });
+    
+    //Takes a placeholder control($), swaps it for a proper div,
+    //creates chart from the filename on it, then appends placeholder at the end.
+	function createChart(thePlaceholder, filename, success) {
+		var theClone = thePlaceholder.clone(); //keep the clone handy.
+		thePlaceholder.removeClass("placeholder").addClass("chartContainer"); //swap placeholder for a proper class
+		thePlaceholder.html('<div id="theChart" class="chart"></div>'); 
+		console.log('$("#theChart").length', $("#theChart").length);
+		restoreEnv(filename, function(data) {
+			chartfiles.push(filename);
+			if (data.indexOf("not found")>-1) {
+				$("#theChart").parent().remove();
+				$("#theChart").remove();
+			}
+			else {
+				$("#theChart").attr("id", "");
+			}
+			//$(".main.row").append('<div class="placeholder col-md-5"><h1></h1></div>'); //add a new placeholder
+			$(".main.row").append(theClone); //add a new placeholder
+			if (success != undefined) success();
+		});
+	}
+    
+	function saveTheDash() {
+		saveDash();
+	}
     </script>
     <div class="container">
-        <div class="row main">
-                <div class="placeholder col-md-5"><h1></h1></div>
+    <div class="row">
+        <div class="col-md-4">
+            <div id="panelTop" >
+                <div class="panel-body" style="border: 0px none black;">
+                <h4 style="margin: 0px;">
+                    <a class="" href="/?ref=dash"   ><small>Back</small></a> <!-- onclick="history.go(-1);" -->
+                    <a class="" href="#" onclick="saveTheDash();" ><small>Save</small></a>
+                    <a class="" href="#"><small>Help</small></a>
+                </h4>
+                </div>
+            </div>
+        </div>
+    </div>
+        <div class="clear row main">
+                <div class="placeholder col-md-5"><h1 class='glyphicon glyphicon-plus'></h1></div>
         </div>
     </div>
 </body>

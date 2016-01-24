@@ -40,16 +40,39 @@ function init()
     
     clearChart();
     fetchEnvs();
-    conn = localStorage.getItem("conn");
-    if (conn==null) {
-        conn={};
-        showConnectDialog();
-    } else {
-        conn = JSON.parse(conn);
-        showConnectDialog();
-        $("#connectDialog .refresh").addClass("spinning");
-        connect();
-    }
+    fetchDashes();
+	conn = localStorage.getItem("conn");
+    if (getQueryString("ref") == null) {
+		console.log("ref is null");
+		if (conn==null) {
+			conn={};
+			showConnectDialog();
+		} else {
+			conn = JSON.parse(conn);
+			showConnectDialog();
+			$("#connectDialog .refresh").addClass("spinning");
+			connect();
+		}
+	}
+	else {
+		//restore the stale state
+		console.log("ref is not null");
+		var stale = localStorage.getItem("stale");
+		if (stale != null && stale.length > 0) {
+			restoreEnvFromJSON(stale);
+		}
+		//Remove querystring from the href.
+		//http://stackoverflow.com/questions/10970078/modifying-a-query-string-without-reloading-the-page
+		if (history.pushState) {
+			//var newurl = window.location.protocol + "//" + window.location.host + window.location.pathname + '?myNewUrlQuery=1';
+			var newurl = getPathFromUrl(window.location.href);
+			window.history.pushState({path:newurl},'',newurl);
+		}
+		else {
+			window.location.href =  window.location.href + "#abc";
+		}
+		
+	}
     handlers();
 }
 
@@ -59,6 +82,19 @@ function init()
 function handlers() {
     $("body").on("click", "#ddnrestore .dropdown-menu li a", function() {
         restoreEnv($(this).text());
+    });
+    
+    $("body").on("click", "#ddndash .dropdown-menu li a", function() {
+		localStorage.setItem("stale", saveEnvToJSON()); //backup the current env.
+		
+		var f = $(this).text();
+		if (f.indexOf("New Dash")>-1) {
+			window.location = "/dash.html";
+		}
+		else {
+			//restoreDash(f);
+			window.location = "/dash.html?file=" + f;
+		}
     });
     
     $("body").on("click", ".table-button", function(){
@@ -168,6 +204,7 @@ function drop(ev) {
             console.log('.dropdown not found, adding teaser.');
             thePanelBody.append(getHTMLTeaser());
         }
+        drawTheChart();
         return;
     }
     else if (control.hasClass('measure') || control.hasClass('dimension')) {
@@ -1179,35 +1216,87 @@ function fetchEnvs() {
     });
 }
 
+function fetchDashes() {
+    $("#ddndash .dropdown-menu li").remove();
+    $.ajax({
+        url: "app.php",
+        method: "POST",
+        data: {FETCH_DASHES: ""},
+        success: function(data) {
+            var theList = JSON.parse(data);
+            lastEnvList = theList;
+            for(var i=0;i<theList.length;i++) {
+                $("#ddndash .dropdown-menu").append("<li><a href='#'>" + theList[i]  + "</a></li>");
+            }
+			$("#ddndash .dropdown-menu").append("<li><a href='#'>New Dash</a></li>");
+        }
+    });
+}
+
 function saveEnv() {
+	console.log("saveEnv()");
+	bspopup({
+		type: "input",
+		text: "Enter a filename: ",
+		success: function(ev) {
+			var fileName = ev.value;
+			if (fileName==null || fileName.length==0) return;
+			var env = saveEnvToJSON();
+			$.ajax({ 
+				url: "app.php",
+				method: "POST",
+				data: {SAVE_ENV: env, FILE: fileName},
+				success: function(data) {
+					fetchEnvs();
+					bspopup("Chart data is saved.");
+				}
+			});
+		}
+	});
+}
+
+function saveEnvToJSON() {
+	var obj = {};
+	obj.chartData = lastChartData;
+	obj.measures = $("#panelBodyMeasures").html();
+	obj.dimensions = $("#panelBodyDimensions").html();
+	obj.rows = $("#panelBodyRows").html();
+	obj.columns = $("#panelBodyColumns").html();
+	obj.tables = $("#panelTables .panel-body").html();
+	obj.vars = {};
+	obj.vars.tables = tables;
+	obj.vars.currentTable = currentTable;
+	obj.vars.currentDimensions = currentDimensions;
+	obj.vars.filters = filters;
+	obj.vars.currentMeasures = currentMeasures;
+	obj.vars.lastSQL = lastSQL;
+	return JSON.stringify(obj);
+}
+
+function saveDash() {
     bspopup({
         type: "input",
         text: "Enter a filename: ",
         success: function(ev) {
             var fileName = ev.value;
             if (fileName==null || fileName.length==0) return;
-            console.log("saveEnv()");
+            console.log("saveDash()");
             var obj = {};
-            obj.chartData = lastChartData;
-            obj.measures = $("#panelBodyMeasures").html();
-            obj.dimensions = $("#panelBodyDimensions").html();
-            obj.rows = $("#panelBodyRows").html();
-            obj.columns = $("#panelBodyColumns").html();
-            obj.tables = $("#panelTables .panel-body").html();
-            env = JSON.stringify(obj);
+            obj.files = chartfiles;
+            var dash = JSON.stringify(obj);
             $.ajax({ 
                 url: "app.php",
                 method: "POST",
-                data: {SAVE_ENV: env, FILE: fileName},
+                data: {SAVE_DASH: dash, FILE: fileName},
                 success: function(data) {
-                    console.log(data);
-                    fetchEnvs();
-                    bspopup("Chart data is saved.");
+					fetchDashes();
+                    bspopup("Dash is saved!");
                 }
             });
         }
     });
 }
+
 
 function restoreEnv(fileName, callback) {
     $.ajax({
@@ -1215,23 +1304,33 @@ function restoreEnv(fileName, callback) {
         type: "POST",
         data: {GET_ENV: fileName},
         success: function(data) {
-            if (data.indexOf("not found") > -1) {
+            if (data == "FILE_NOT_FOUND") {
                 bspopup(data);
                 if (callback != undefined) callback(data);
                 return;
             }
-            env = data;
-            var obj = JSON.parse(env);
-            lastChartData = obj.chartData;
-            $("#panelBodyMeasures").html(obj.measures);
-            $("#panelBodyDimensions").html(obj.dimensions);
-            $("#panelBodyRows").html(obj.rows);
-            $("#panelBodyColumns").html(obj.columns);
-            $("#panelTables .panel-body").html(obj.tables);
-            drawChart(lastChartData.categories, lastChartData.series);
-            if (callback != undefined) callback(data);
+            restoreEnvFromJSON(data, callback);
         }
     });
+}
+
+function restoreEnvFromJSON(data, callback) {
+	var obj = JSON.parse(data);
+	lastChartData = obj.chartData;
+	$("#panelBodyMeasures").html(obj.measures);
+	$("#panelBodyDimensions").html(obj.dimensions);
+	$("#panelBodyRows").html(obj.rows);
+	$("#panelBodyColumns").html(obj.columns);
+	$("#panelTables .panel-body").html(obj.tables);
+	if (obj.vars != undefined) {
+		currentMeasures =  obj.currentMeasures;
+		currentDimensions = obj.currentDimensions;
+		lastSQL=obj.lastSQL;
+		filters=obj.filters;
+		tables=obj.tables;
+	}
+	drawChart(lastChartData.categories, lastChartData.series);
+	if (callback != undefined) callback(data);
 }
 
 function clearChart() {

@@ -17,6 +17,13 @@ if (count($_POST)>0) {
         }
         exit(json_encode($r));
     }
+    else if (isset($_POST["FETCH_DASHES"])) {
+        $r = array();
+        foreach(glob("*.dash") as $entry) {
+            array_push($r, substr($entry, 0, -5));
+        }
+        exit(json_encode($r));
+    }
     else if (isset($_POST["GET_ENV"])) {
         $fname = $_POST["GET_ENV"] . ".dviz";
         if (file_exists($fname)) {
@@ -25,12 +32,31 @@ if (count($_POST)>0) {
             fclose($fp);
             exit($json);
         } else {
-            exit("File not found");
+            exit("FILE_NOT_FOUND");
+        }
+    }
+    else if (isset($_POST["GET_DASH"])) {
+        $fname = $_POST["GET_DASH"] . ".dash";
+        if (file_exists($fname)) {
+            $fp = fopen($fname, "r");
+            $json = fread($fp, filesize($fname));
+            fclose($fp);
+            exit($json);
+        } else {
+            exit("FILE_NOT_FOUND");
         }
     }
     else if (isset($_POST["SAVE_ENV"])) {
         $fname = $_POST["FILE"] . ".dviz";
         $json = $_POST["SAVE_ENV"];
+        $fp = fopen($fname, "w");
+        fwrite($fp,$json);
+        fclose($fp);
+        exit("success");
+    }
+    else if (isset($_POST["SAVE_DASH"])) {
+        $fname = $_POST["FILE"] . ".dash";
+        $json = $_POST["SAVE_DASH"];
         $fp = fopen($fname, "w");
         fwrite($fp,$json);
         fclose($fp);

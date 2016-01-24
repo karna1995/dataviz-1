@@ -5,6 +5,26 @@
  * @author Prahlad Yeri (prahladyeri@yahoo.com)
  * */
  
+
+//http://stackoverflow.com/questions/2540969/remove-querystring-from-url 
+function getPathFromUrl(url) {
+  return url.split("?")[0];
+}
+ 
+/**
+ * Get the value of a querystring (http://gomakethings.com/how-to-get-the-value-of-a-querystring-with-native-javascript/)
+ * 
+ * @param  {String} field The field to get the value of
+ * @param  {String} url   The URL to get the value from (optional)
+ * @return {String}       The field value
+ */
+var getQueryString = function ( field, url ) {
+    var href = url ? url : window.location.href;
+    var reg = new RegExp( '[?&]' + field + '=([^&#]*)', 'i' );
+    var string = reg.exec(href);
+    return string ? string[1] : null;
+};
+ 
 /**
  * Validates a date as per European format (yyyy-mm-dd).
  * 
