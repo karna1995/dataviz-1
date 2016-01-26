@@ -14,7 +14,7 @@ var lastSQL = ""; //last successfully executed sql statement
 var lastChartData = {}; //last successful data used to draw the chart
 var lastEnvList = [];
 var filters = {}; //dict for all filters, pattern: name=>Filter.
-var numTypes = ["float", "double", "decimal", "int", "smallint",
+var numTypes = ["float", "double", "decimal", "int", "integer", "smallint",
     "tinyint", "mediumint", "bigint"];
 var dateTypes = ["datetime", "date"];
 var env = "";
@@ -49,6 +49,7 @@ function init()
 			showConnectDialog();
 		} else {
 			conn = JSON.parse(conn);
+			if (conn.Type == undefined) conn.Type = "mysql";
 			showConnectDialog();
 			$("#connectDialog .refresh").addClass("spinning");
 			connect();
@@ -80,6 +81,22 @@ function init()
  * Body level event handlers for various buttons, labels, etc.
  * */
 function handlers() {
+	$("body").on("click", "input[type='radio']", function() {
+		var name = $(this).attr("name");
+		if (name=="txtConnType") {
+			if ($("input[name='txtConnType']:checked").val() == "mysql") {
+				$("#txtPort").val("3306");
+			}
+			else if ($("input[name='txtConnType']:checked").val() == "pgsql") {
+				$("#txtPort").val("5432");
+			}
+			else {
+				$("#txtPort").val("0");
+			}
+		}
+		
+	});
+	
     $("body").on("click", "#ddnrestore .dropdown-menu li a", function() {
         restoreEnv($(this).text());
     });
@@ -141,18 +158,13 @@ function exportToCSV() {
         });
         return;
     }
+    var tdata = $.extend({}, conn);
+	tdata.SQL = lastSQL,
+	tdata.CSV = "true"
    $.ajax({
         url: "app.php",
         type: "POST",
-        data: {
-            Server:conn.Server,
-            Port:conn.Port,
-            Database:conn.Database,
-            Username:conn.Username,
-            Password:conn.Password,
-            SQL:lastSQL,
-            CSV:"true"
-            },
+        data: tdata,
         success: function(data) {
             if (data=="success") window.location = "output.csv"
         },
@@ -726,11 +738,12 @@ function doConnect() {
     }
     
     conn = {
+		Type: $("[name='txtConnType']:checked").val(),
         Server: $("#txtServer").val(),
         Port: $("#txtPort").val(),
         Database: $("#txtDatabase").val(),
         Username: $("#txtUsername").val(),
-        Password: $("#txtPassword").val(),
+        Password: $("#txtPassword").val()
     };
     localStorage.setItem("conn", JSON.stringify(conn));
     connect();
@@ -747,6 +760,7 @@ function connect() {
             $("#connectDialog").modal('hide');
         },
         success: function(data) {
+			//console.log('success', data);
             $("#connectDialog .refresh").removeClass("spinning");
             $("#connectDialog").modal('hide');
             if (data.indexOf("Error occurred") >= 0) {
@@ -989,6 +1003,7 @@ function drawTheChart() {
         var groupbyClause = "";
         for (var i=0;i<currentMeasures.length;i++) {
             selClause += (selClause.length==0 ? "" : ",") +   currentMeasures[i];
+            if (conn.Type == 'pgsql') selClause += ' "' + currentMeasures[i] +  '"';
         }
         for (var i=0;i<currentDimensions.length;i++) {
             selClause += (selClause.length==0 ? "" : ",")  +  currentDimensions[i] ;
@@ -1005,18 +1020,14 @@ function drawTheChart() {
         console.log("processed sql: ", sql);
         $("#panelDimensions .glyphicon-refresh").addClass("spinning");
         $("#panelMeasures .glyphicon-refresh").addClass("spinning");
+        var tdata = $.extend({}, conn);
+        tdata.SQL = sql;
         $.ajax({
             url: "app.php",
             type: "POST",
-            data: {
-                Server:conn.Server,
-                Port:conn.Port,
-                Database:conn.Database,
-                Username:conn.Username,
-                Password:conn.Password,
-                SQL:sql
-                },
+            data: tdata,
             success: function(data) {
+				console.log("drawTheChart().success", data);
                 lastSQL = sql;
                 $("#panelDimensions .glyphicon-refresh").removeClass("spinning");
                 $("#panelMeasures .glyphicon-refresh").removeClass("spinning");
@@ -1044,6 +1055,7 @@ function drawTheChart() {
                 drawChart(categories, series);
             },
             error: function(response) {
+				console.log("drawTheChart().error", response);
                 $("#panelDimensions .glyphicon-refresh").removeClass("spinning");
                 $("#panelMeasures .glyphicon-refresh").removeClass("spinning");
             }

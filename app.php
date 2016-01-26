@@ -10,6 +10,7 @@ if (strstr($_SERVER["HTTP_HOST"], "localhost")) {
 }
 
 if (count($_POST)>0) {
+	//handle non-connection requests first.
     if (isset($_POST["FETCH_ENVS"])) {
         $r = array();
         foreach(glob("*.dviz") as $entry) {
@@ -63,18 +64,27 @@ if (count($_POST)>0) {
         exit("success");
     }
 
-    //connection request
+    //connection requests
+    $serverType = $_POST["Type"];
     $server = $_POST["Server"];
     $database = $_POST["Database"];
     $username = $_POST["Username"];
     $password = $_POST["Password"];
     $port = $_POST["Port"];
     try {
-        $dbh = new PDO("mysql:host=" . $server . ";port=" . $port .  ";dbname=" . $database, 
-            $username, $password, array(
-            PDO::ATTR_TIMEOUT => "3",
-            //PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
-        ));
+		if ($serverType == 'mysql') {
+			$dbh = new PDO($serverType . ":host=" . $server . ";port=" . $port .  ";dbname=" . $database, 
+				$username, $password, array(
+				PDO::ATTR_TIMEOUT => "3",
+				//PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
+			));
+		}
+		else if ($serverType == 'pgsql') {
+			$connstr = $serverType . ":host=" . $server . ";port=" . $port .  ";dbname=" . $database . 
+				";user=" . $username . ";password=" . $password;
+			//error_log($connstr);
+			$dbh = new PDO($connstr);
+		}
         //$dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);         
     } catch(PDOException $e) {
         die("Error occurred: " . $e->getMessage());
@@ -124,7 +134,12 @@ if (count($_POST)>0) {
     } else {
         //output all tables and columns
         $r = array();
-        $sql = "select table_schema, table_name, column_name, data_type,column_type from information_schema.columns where table_schema not in ('information_schema', 'mysql')";
+        if ($serverType == "mysql") {
+			$sql = "select table_schema, table_name, column_name, data_type, column_type from information_schema.columns where table_schema not in ('information_schema', 'mysql')";
+		}
+		else if ($serverType == "pgsql") {
+			$sql = "select table_schema, table_name, column_name, data_type, data_type as column_type from information_schema.columns where table_schema not in ('information_schema', 'pg_catalog');";
+		}
         $sth = $dbh->prepare($sql);
         $sth->execute();
         $data = $sth->fetchAll();

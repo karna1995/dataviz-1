@@ -293,7 +293,9 @@ button.btn.btn-danger {
       </div>
       <div class="modal-body">
         <p>
-            <label>mysql server: </label><input name="txtServer" id="txtServer" class="form-control">
+            <label>server: </label><input name="txtServer" id="txtServer" class="form-control">
+            <label><input type='radio' name='txtConnType' value='mysql' checked='true'>mysql</label>
+            <label><input type='radio' name='txtConnType' value='pgsql'>postgresql</label><br>
             <label>port: </label><input name="txtPort" id="txtPort" class="form-control" value="3306">
             <label>database: </label><input name="txtDatabase" id="txtDatabase" class="form-control">
             <label>username: </label><input name="txtUsername" id="txtUsername" class="form-control">
