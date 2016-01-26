@@ -891,6 +891,10 @@ function doSelectTable() {
             }
         });
     } else {
+		if ($("[name='grpSelectTable']:checked").length == 0) {
+			bspopup("Zero tables selected.");
+			return;
+		}
         $("#selectTableDialog").modal('hide');
         var currTable = $("[name='grpSelectTable']:checked").val();
         var data = window.data;
