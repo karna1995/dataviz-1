@@ -798,16 +798,39 @@ function showSQLDialog() {
 
 function showTablesDialog(data) {
     data = JSON.parse(data);
-    divBody = "<div class='input-group'>";
-    for (var i=0;i<data.length;i++) {
-        var row = data[i];
-        var tname = row["table_schema"] + "."  + row["table_name"];
-        if (divBody.indexOf(tname) ==-1 ) {
-            divBody += "<label class='btn btn-xs btn-default'><input name='grpSelectTable' type='radio' value='" + tname + "' id='"  + tname +  "' " + ((i==0) ? "checked" : "") + ">&nbsp;" + tname + "</label><br>";
-        }
-    }
-    divBody += "</div>";
-    $("#selectTableDialog .modal-body #tabTables").html(divBody);
+    var tbody = "";
+    var schemas = [];
+	for (var i=0;i<data.length;i++) {
+		var row = data[i];
+		var tname = row["table_schema"];
+		if (schemas.indexOf(tname) ==-1 ) {
+			schemas.push(tname);
+			tbody += "<option value='" + tname + "'>" + tname +  "</option><br>";
+		}
+	}
+    $("#selectTableDialog #ddnschema").html(tbody);
+    
+    $("#selectTableDialog #ddnschema").unbind('change');
+    $("#selectTableDialog #ddnschema").change(function(){
+		//$("ddnschema").find("input[type='radio']").length
+		divBody = "<div class='input-group'>";
+		schema = $(this).val();
+		
+		for (var i=0;i<data.length;i++) {
+			var row = data[i];
+			var tname = row["table_schema"] + "."  + row["table_name"];
+			if (divBody.indexOf(tname) ==-1 ) {
+				if (tname.indexOf(schema + ".") == 0) divBody += "<label class='btn btn-xs btn-default'><input name='grpSelectTable' type='radio' value='" + tname + "' id='"  + tname +  "' " + ((i==0) ? "checked" : "") + ">&nbsp;" + tname + "</label><br>";
+			}
+		}
+		
+		divBody += "</div>";
+		$("#selectTableDialog #tabTables").html(divBody);
+		$("#selectTableDialog #tabTables input[type='radio']:first").prop("checked",true);
+	});
+	
+    $("#selectTableDialog #ddnschema option:first").trigger('change');
+    //$("#selectTableDialog #ddnschema option:first").prop("selected",true);
     $("#selectTableDialog .modal-body .tab-content").animate({scrollTop: 0});
     $("#selectTableDialog .selectTableButton").unbind("click");
     $("#selectTableDialog .selectTableButton").click(function(){
