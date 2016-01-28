@@ -83,7 +83,7 @@ if (count($_POST)>0) {
 			$connstr = $serverType . ":host=" . $server . ";port=" . $port .  ";dbname=" . $database . 
 				";user=" . $username . ";password=" . $password;
 			//error_log($connstr);
-			$dbh = new PDO($connstr);
+			$dbh = new PDO($connstr,$username,$password,array(PDO::ATTR_TIMEOUT => "20"));
 		}
         //$dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);         
     } catch(PDOException $e) {
@@ -135,10 +135,10 @@ if (count($_POST)>0) {
         //output all tables and columns
         $r = array();
         if ($serverType == "mysql") {
-			$sql = "select table_schema, table_name, column_name, data_type, column_type from information_schema.columns where table_schema not in ('information_schema', 'mysql')";
+			$sql = "select table_schema, table_name, column_name, data_type, column_type from information_schema.columns where table_schema not in ('information_schema', 'mysql') order by table_schema, table_name";
 		}
 		else if ($serverType == "pgsql") {
-			$sql = "select table_schema, table_name, column_name, data_type, data_type as column_type from information_schema.columns where table_schema not in ('information_schema', 'pg_catalog');";
+			$sql = "select table_schema, table_name, column_name, data_type, data_type as column_type from information_schema.columns where table_schema not in ('information_schema', 'pg_catalog') order by table_schema, table_name;";
 		}
         $sth = $dbh->prepare($sql);
         $sth->execute();
