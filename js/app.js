@@ -1006,6 +1006,8 @@ function buildTable(tname) {
     for(var i=0;i<tables[tname].dimensions.length;i++) {
         divdimensions += '<label id="' + tables[tname].dimensions[i].name +  '"  draggable="true" ondragstart="drag(event)" class="btn btn-xs btn-default dimension">' + tables[tname].dimensions[i].name + '</label>';
     }
+    //special measure called "Count All"
+	divmeasures += '<label id="_count_all" draggable="true" ondragstart="drag(event)"  class="btn  btn-xs btn-default text-default measure">Count All</label>';
     divdimensions += "";
     divmeasures += "";
     $("#panelDimensions .panel-body").html(divdimensions);
@@ -1046,7 +1048,12 @@ function drawTheChart() {
         var selClause = "";
         var groupbyClause = "";
         for (var i=0;i<currentMeasures.length;i++) {
-            selClause += (selClause.length==0 ? "" : ",") +   currentMeasures[i];
+			if (currentMeasures[i].indexOf("(Count All)")>-1) {
+				selClause += (selClause.length==0 ? "" : ",") +   "count(*)";
+			}
+			else {
+				selClause += (selClause.length==0 ? "" : ",") +   currentMeasures[i];
+			}
             if (conn.Type == 'pgsql' || conn.Type == 'redshift') selClause += ' "' + currentMeasures[i] +  '"';
         }
         for (var i=0;i<currentDimensions.length;i++) {
