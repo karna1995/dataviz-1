@@ -18,6 +18,7 @@ var numTypes = ["float", "double", "decimal", "int", "integer", "smallint",
     "tinyint", "mediumint", "bigint"];
 var dateTypes = ["datetime", "date"];
 var env = "";
+var pauseChartingFlag = false;
 
 //TODO: Remove unncessary comments.
 //TODO: Remove unncessary console.log statements.
@@ -1022,7 +1023,7 @@ function buildTable(tname) {
 }
 
 /*
- * Prepares chart drawing functionality by building SQL and
+ * Prepares chart drawing functionality by pulling data using SQL and
  * using the available measures and dimensions in the row and column boxes.
  * 
  * */
@@ -1069,8 +1070,8 @@ function drawTheChart() {
                 + groupbyClause + processFiltersHaving();
         }
         console.log("processed sql: ", sql);
-        $("#panelDimensions .glyphicon-refresh").addClass("spinning");
-        $("#panelMeasures .glyphicon-refresh").addClass("spinning");
+        $("#panelChart .refresh-button").removeClass("hidden");
+        $("#panelChart .glyphicon-refresh").addClass("spinning");
         var tdata = $.extend({}, conn);
         tdata.SQL = sql;
         $.ajax({
@@ -1079,9 +1080,13 @@ function drawTheChart() {
             data: tdata,
             success: function(data) {
 				console.log("drawTheChart().success", data);
+				if (pauseChartingFlag) {
+					pauseChartingFlag = false;
+					return;
+				}
                 lastSQL = sql;
-                $("#panelDimensions .glyphicon-refresh").removeClass("spinning");
-                $("#panelMeasures .glyphicon-refresh").removeClass("spinning");
+				$("#panelChart .refresh-button").addClass("hidden");
+				$("#panelChart .glyphicon-refresh").removeClass("spinning");
                 var categories = []; //data regarding the current dimension
                 var series = []; //data regarding the current measures
                 for(var j=0;j<currentMeasures.length;j++) {
@@ -1107,11 +1112,17 @@ function drawTheChart() {
             },
             error: function(response) {
 				console.log("drawTheChart().error", response);
-                $("#panelDimensions .glyphicon-refresh").removeClass("spinning");
-                $("#panelMeasures .glyphicon-refresh").removeClass("spinning");
+				$("#panelChart .refresh-button").addClass("hidden");
+				$("#panelChart .glyphicon-refresh").removeClass("spinning");
             }
             });        
     });
+}
+
+function pauseCharting() {
+	$("#panelChart .refresh-button").addClass("hidden");
+	$("#panelChart .glyphicon-refresh").removeClass("spinning");
+	pauseChartingFlag=true;
 }
 
 /**

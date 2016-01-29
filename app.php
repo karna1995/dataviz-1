@@ -8,7 +8,6 @@ $debug = false;
 if (strstr($_SERVER["HTTP_HOST"], "localhost")) {
     $debug = true; 
 }
-
 if (count($_POST)>0) {
 	//handle non-connection requests first.
     if (isset($_POST["FETCH_ENVS"])) {
@@ -121,6 +120,7 @@ if (count($_POST)>0) {
         exit("success");
     } else if (isset($_POST["SQL"])) {
         //Handle sql
+		//sleep(5);
         $sql = $_POST["SQL"];
         $sth = $dbh->prepare($sql);
         $sth->execute();
