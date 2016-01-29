@@ -293,9 +293,13 @@ button.btn.btn-danger {
       </div>
       <div class="modal-body">
         <p>
+            <label class='mark'><input type='radio' name='txtConnType' value='mysql' checked='true'>&nbsp;mysql</label>
+            &nbsp;&nbsp;&nbsp;&nbsp;
+            <label class='mark'><input type='radio' name='txtConnType' value='pgsql'>&nbsp;postgresql</label>
+            &nbsp;&nbsp;&nbsp;&nbsp;
+            <label class='mark'><input type='radio' name='txtConnType' value='redshift'>&nbsp;redshift</label>
+            <br>
             <label>server: </label><input name="txtServer" id="txtServer" class="form-control">
-            <label><input type='radio' name='txtConnType' value='mysql' checked='true'>&nbsp;mysql</label>
-            <label><input type='radio' name='txtConnType' value='pgsql'>&nbsp;postgresql</label><br>
             <label>port: </label><input name="txtPort" id="txtPort" class="form-control" value="3306">
             <label>database: </label><input name="txtDatabase" id="txtDatabase" class="form-control">
             <label>username: </label><input name="txtUsername" id="txtUsername" class="form-control">
@@ -338,6 +342,7 @@ button.btn.btn-danger {
       </div>
       <div class="modal-footer">
 		<button onclick="showConnectDialog();" type='button' data-dismiss='modal' class='pull-left btn btn-primary'><span class='glyphicon glyphicon-retweet'></span> Edit Connection</button>
+		<button onclick="refreshTablesDialog();" type='button' class='pull-left btn btn-primary'><span class='glyphicon glyphicon-refresh'></span> Refresh</button>
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
         <button type="button" class="selectTableButton btn btn-default"><span class="glyphicon glyphicon-refresh"></span> Connect</button>
       </div>

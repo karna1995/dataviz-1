@@ -66,6 +66,9 @@ if (count($_POST)>0) {
 
     //connection requests
     $serverType = $_POST["Type"];
+    if ($serverType == 'redshift') {
+		$serverType = 'pgsql';
+	}
     $server = $_POST["Server"];
     $database = $_POST["Database"];
     $username = $_POST["Username"];
@@ -79,7 +82,7 @@ if (count($_POST)>0) {
 				//PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION
 			));
 		}
-		else if ($serverType == 'pgsql') {
+		else if ($serverType == 'pgsql' || $serverType == 'redshift') {
 			$connstr = $serverType . ":host=" . $server . ";port=" . $port .  ";dbname=" . $database . 
 				";user=" . $username . ";password=" . $password;
 			//error_log($connstr);

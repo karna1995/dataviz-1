@@ -90,6 +90,9 @@ function handlers() {
 			else if ($("input[name='txtConnType']:checked").val() == "pgsql") {
 				$("#txtPort").val("5432");
 			}
+			else if ($("input[name='txtConnType']:checked").val() == "redshift") {
+				$("#txtPort").val("5439");
+			}
 			else {
 				$("#txtPort").val("0");
 			}
@@ -115,7 +118,8 @@ function handlers() {
     });
     
     $("body").on("click", ".table-button", function(){
-        showConnectDialog();
+        //showConnectDialog();
+        refreshTablesDialog();
     });
     
     $("body").on("click", ".filter-button", function(){
@@ -749,6 +753,7 @@ function doConnect() {
     connect();
 }
 
+
 function connect() {
     $("#connectDialog .refresh").addClass("spinning");
     $.ajax({
@@ -796,6 +801,11 @@ function showSQLDialog() {
     $("#sqlDialog").modal('show');
 }
 
+function refreshTablesDialog() {
+	//$("#selectTableDialog").modal('hide');
+	connect();
+}
+
 function showTablesDialog(data) {
     data = JSON.parse(data);
     var tbody = "";
@@ -833,10 +843,17 @@ function showTablesDialog(data) {
     //$("#selectTableDialog #ddnschema option:first").prop("selected",true);
     $("#selectTableDialog .modal-body .tab-content").animate({scrollTop: 0});
     $("#selectTableDialog .selectTableButton").unbind("click");
-    $("#selectTableDialog .selectTableButton").click(function(){
+    $("#selectTableDialog .selectTableButton").click(function() {
         doSelectTable();
     });
-    $("#selectTableDialog").modal('show');
+    if ($("#selectTableDialog").hasClass('in')) {
+		console.log('already shown');
+	}
+	else {
+		console.log('not already shown');
+		$("#selectTableDialog").modal('show');
+	}
+	
     window.data = data;
 }
 
@@ -1030,7 +1047,7 @@ function drawTheChart() {
         var groupbyClause = "";
         for (var i=0;i<currentMeasures.length;i++) {
             selClause += (selClause.length==0 ? "" : ",") +   currentMeasures[i];
-            if (conn.Type == 'pgsql') selClause += ' "' + currentMeasures[i] +  '"';
+            if (conn.Type == 'pgsql' || conn.Type == 'redshift') selClause += ' "' + currentMeasures[i] +  '"';
         }
         for (var i=0;i<currentDimensions.length;i++) {
             selClause += (selClause.length==0 ? "" : ",")  +  currentDimensions[i] ;
