@@ -67,8 +67,12 @@ function init()
 		//http://stackoverflow.com/questions/10970078/modifying-a-query-string-without-reloading-the-page
 		if (history.pushState) {
 			//var newurl = window.location.protocol + "//" + window.location.host + window.location.pathname + '?myNewUrlQuery=1';
-			var newurl = getPathFromUrl(window.location.href);
+			var tag = (getQueryString("tag")==null ? "" : "?tag=" + getQueryString("tag"));
+			console.log("TAGGG...",tag);
+			var newurl = getPathFromUrl(window.location.href)  + tag;
+			console.log(newurl);
 			window.history.pushState({path:newurl},'',newurl);
+			//window.location.href = newurl + "#abc";
 		}
 		else {
 			window.location.href =  window.location.href + "#abc";
@@ -110,11 +114,15 @@ function handlers() {
 		
 		var f = $(this).text();
 		if (f.indexOf("New Dash")>-1) {
-			window.location = "/dash.html";
+			nurl = "/dash.html";
+			if (getQueryString("tag")!=null) nurl += "?tag=" + getQueryString("tag");
+			window.location = nurl;
 		}
 		else {
 			//restoreDash(f);
-			window.location = "/dash.html?file=" + f;
+			nurl = "/dash.html?file=" + f;
+			if (getQueryString("tag")!=null) nurl += "&tag=" + getQueryString("tag");
+			window.location = nurl;
 		}
     });
     
@@ -1292,10 +1300,15 @@ function fetchEnvs() {
 
 function fetchDashes() {
     $("#ddndash .dropdown-menu li").remove();
+    var data = {FETCH_DASHES: ""};
+    var tag = getQueryString("tag");
+    if (tag != null) {
+		data['USER_TAG'] = tag;
+	}
     $.ajax({
         url: "app.php",
         method: "POST",
-        data: {FETCH_DASHES: ""},
+        data: data,
         success: function(data) {
             var theList = JSON.parse(data);
             lastEnvList = theList;
@@ -1358,10 +1371,14 @@ function saveDash() {
             var obj = {};
             obj.files = chartfiles;
             var dash = JSON.stringify(obj);
+            var data = {SAVE_DASH: dash, FILE: fileName};
+            if (getQueryString("tag")!=null) {
+				data.USER_TAG = getQueryString("tag");
+			}
             $.ajax({ 
                 url: "app.php",
                 method: "POST",
-                data: {SAVE_DASH: dash, FILE: fileName},
+                data: data,
                 success: function(data) {
 					fetchDashes();
                     bspopup("Dash is saved!");

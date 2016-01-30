@@ -19,6 +19,9 @@ function getPathFromUrl(url) {
  * @return {String}       The field value
  */
 var getQueryString = function ( field, url ) {
+	if (url==undefined) {
+		url = window.location.href;
+	}
     var href = url ? url : window.location.href;
     var reg = new RegExp( '[?&]' + field + '=([^&#]*)', 'i' );
     var string = reg.exec(href);

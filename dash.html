@@ -74,13 +74,16 @@ body {
     $(document).ready(function() {
 		chartfiles = [];
         fetchEnvs();
-		//TODO: check for querystring and load an existing dash if needed
-		var fname = getQueryString("file", window.location.href);
+		var fname = getQueryString("file");
 		if (fname != null) {
+			var data = {GET_DASH: fname};
+			if (getQueryString("tag") != null) {
+				data["USER_TAG"] = getQueryString("tag");
+			}
 			$.ajax({
 				url: "app.php",
 				method: "POST",
-				data: {GET_DASH: fname},
+				data: data,
 				success: function(data){
 					if (data == "FILE_NOT_FOUND") {
 						bspopup(data);
@@ -142,6 +145,14 @@ body {
 	function saveTheDash() {
 		saveDash();
 	}
+	
+	function goBack() {
+		var url ="/index.html?ref=dash";
+		if (getQueryString("tag")!=null) {
+			url += "&tag=" + getQueryString("tag");
+		}
+		window.location.href = url;
+	}
     </script>
     <div class="container">
     <div class="row">
@@ -149,7 +160,12 @@ body {
             <div id="panelTop" >
                 <div class="panel-body" style="border: 0px none black;">
                 <h4 style="margin: 0px;">
-                    <a class="" href="/?ref=dash"   ><small>Back</small></a> <!-- onclick="history.go(-1);" -->
+                    <a class="" href="#" onclick="goBack();"><small>Back</small></a> 
+<!--
+                    <a class="" href="#" onclick="history.go(-1);"><small>Back</small></a> 
+                    
+-->
+                    <!-- onclick="history.go(-1);" -->
                     <a class="" href="#" onclick="saveTheDash();" ><small>Save</small></a>
                     <a class="" href="#"><small>Help</small></a>
                 </h4>

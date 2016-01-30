@@ -18,9 +18,17 @@ if (count($_POST)>0) {
         exit(json_encode($r));
     }
     else if (isset($_POST["FETCH_DASHES"])) {
+		if (isset($_POST["USER_TAG"])) {
+			$prefix = $_POST["USER_TAG"] . "/";
+			if (!is_dir($prefix)) mkdir($prefix);
+		}
+		else {
+			$prefix = "";
+		}
         $r = array();
-        foreach(glob("*.dash") as $entry) {
-            array_push($r, substr($entry, 0, -5));
+        foreach(glob($prefix . "*.dash") as $entry) {
+            array_push($r, substr($entry, strlen($prefix), -5));
+            //array_push($r, $entry);
         }
         exit(json_encode($r));
     }
@@ -36,7 +44,14 @@ if (count($_POST)>0) {
         }
     }
     else if (isset($_POST["GET_DASH"])) {
-        $fname = $_POST["GET_DASH"] . ".dash";
+		if (isset($_POST["USER_TAG"])) {
+			$prefix = $_POST["USER_TAG"] . "/";
+			if (!is_dir($prefix))  mkdir($prefix);
+		}
+		else {
+			$prefix = "";
+		}
+        $fname = $prefix . $_POST["GET_DASH"] . ".dash";
         if (file_exists($fname)) {
             $fp = fopen($fname, "r");
             $json = fread($fp, filesize($fname));
@@ -55,7 +70,14 @@ if (count($_POST)>0) {
         exit("success");
     }
     else if (isset($_POST["SAVE_DASH"])) {
-        $fname = $_POST["FILE"] . ".dash";
+		if (isset($_POST["USER_TAG"])) {
+			$prefix = $_POST["USER_TAG"] . "/";
+			if (!is_dir($prefix))  mkdir($prefix);
+		}
+		else {
+			$prefix = "";
+		}
+        $fname = $prefix . $_POST["FILE"] . ".dash";
         $json = $_POST["SAVE_DASH"];
         $fp = fopen($fname, "w");
         fwrite($fp,$json);
