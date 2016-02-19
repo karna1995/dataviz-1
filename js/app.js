@@ -1228,13 +1228,28 @@ function processFiltersWhere() {
             if (filter.dateMatcher == "relative") {
                 var reltype = filter.dateRelativeType.slice(0,-1);
                 if (filter.dateValues[0] < 0) { //past date
-                    sql += " between date_add(curdate(), interval " + filter.dateValues[0] +  " " + filter.dateRelativeType.slice(0,-1) + ") and curdate()";
+					if (conn.Type=='mysql') {
+						sql += " between date_add(curdate(), interval " + filter.dateValues[0] +  " " + filter.dateRelativeType.slice(0,-1) + ") and curdate()";
+					}
+					else { //pgsql
+						sql += " between now() + interval '" + filter.dateValues[0] +  " " + filter.dateRelativeType + "' and now()";
+					}
                 }
                 else if (filter.dateValues[0] > 0) { //future date
-                    sql += " between curdate() and date_add(curdate(), interval " + filter.dateValues[0] +  " " + reltype + ")";
+					if (conn.Type=='mysql') {
+						sql += " between curdate() and date_add(curdate(), interval " + filter.dateValues[0] +  " " + reltype + ")";
+					}
+					else { //pgsql
+						sql += " between now() and now() + interval '" + filter.dateValues[0] +  " " + filter.dateRelativeType + "'";
+					}
                 }
                 else { //current day/month/year/etc.
-                    sql += " like '%' and " + reltype + "(" + filter.name + ") = " + reltype +  "(curdate())";
+					if (conn.Type=='mysql') {
+						sql += " like '%' and " + reltype + "(" + filter.name + ") = " + reltype +  "(curdate())";
+					}
+					else { //pgsql
+						sql += "::text like '%' and date_part('" + reltype + "', " + filter.name + ") = date_part('" + reltype + "', curdate())";
+					}
                 }
             }
             if (filter.dateMatcher == "range") {
